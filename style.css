@@ -1,0 +1,56 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* Fondo con la imagen del edificio */
+.background-overlay {
+    background-image: url('tu-imagen.jpg'); /* Asegúrate de tener la imagen en la carpeta */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* El cuadro semi-transparente */
+.login-container {
+    background-color: rgba(77, 153, 153, 0.6); /* El color verde azulado con transparencia */
+    padding: 40px;
+    width: 400px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+h2 {
+    color: black;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: none;
+    background-color: #5BA4A4; /* Color de los campos */
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4D9999;
+    color: black;
+    border: none;
+    padding: 10px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+
+button:hover {
+    background-color: #3d7a7a;
+}
