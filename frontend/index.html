@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAS - Login TecNM</title>
+    <link rel="stylesheet" href="assets/CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="header">
+                <img src="assets/IMG/Fondo TEC.webp" alt="Logo TecNM" class="logo">
+                <h1>SIGAS</h1>
+                <p>Sistema de Gestión de Fallas</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="usuario">Nombre de Usuario</label>
+                    <input type="text" id="usuario" name="nombre" placeholder="Ingresa tu nombre" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="pass" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-login">Entrar al Sistema</button>
+            </form>
+
+            <div class="footer">
+                <span>TecNM - Instituto Tecnológico de Saltillo</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nombre = document.getElementById('usuario').value;
+            const pass = document.getElementById('password').value;
+
+            try {
+                // La URL debe incluir /auth según la configuración del app.use
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nombre, pass })
+                });
+
+                // Verificamos si la respuesta es JSON antes de procesarla
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(result.message);
+                        // Aquí podrías redirigir: window.location.href = "dashboard.html";
+                    } else {
+                        alert(result.message);
+                    }
+                } else {
+                    console.error("El servidor no respondió con JSON");
+                }
+
+            } catch (error) {
+                console.error("Error al conectar:", error);
+                alert("No se pudo establecer conexión con el servidor de SIGAS.");
+            }
+        });
+    </script>
+</body>
+
+</html>

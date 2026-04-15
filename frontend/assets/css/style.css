@@ -1,0 +1,104 @@
+:root {
+    --guindo-tec: #6a1b31; /* El color guindo oficial */
+    --guindo-hover: #4d1022;
+    --blanco: #ffffff;
+    --gris-claro: #f4f4f4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, var(--guindo-tec) 0%, #2b0812 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-box {
+    background: var(--blanco);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.header h1 {
+    color: var(--guindo-tec);
+    font-size: 2rem;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+}
+
+.header p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+.logo {
+    width: 80px;
+    margin-bottom: 15px;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    color: var(--guindo-tec);
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--guindo-tec);
+    box-shadow: 0 0 5px rgba(106, 27, 49, 0.2);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: var(--guindo-tec);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background: var(--guindo-hover);
+    transform: translateY(-2px);
+}
+
+.footer {
+    margin-top: 25px;
+    font-size: 0.7rem;
+    color: #999;
+}
