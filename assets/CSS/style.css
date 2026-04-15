@@ -5,9 +5,8 @@ body, html {
     font-family: Arial, sans-serif;
 }
 
-/* Fondo con la imagen del edificio */
 .background-overlay {
-    background-image: url('tu-imagen.jpg'); /* Asegúrate de tener la imagen en la carpeta */
+    background-image: url('../IMG/Fondo TEC.webp');
     background-size: cover;
     background-position: center;
     height: 100vh;
@@ -16,9 +15,8 @@ body, html {
     align-items: center;
 }
 
-/* El cuadro semi-transparente */
 .login-container {
-    background-color: rgba(77, 153, 153, 0.6); /* El color verde azulado con transparencia */
+    background-color: rgba(77, 153, 153, 0.6);
     padding: 40px;
     width: 400px;
     text-align: center;
@@ -36,7 +34,7 @@ input {
     padding: 15px;
     margin-bottom: 25px;
     border: none;
-    background-color: #5BA4A4; /* Color de los campos */
+    background-color: #5BA4A4;
     box-sizing: border-box;
 }
 
