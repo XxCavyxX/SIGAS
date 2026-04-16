@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAS - Gestión de Roles</title>
+    <link rel="stylesheet" href="assets/css/style_roles.css">
+</head>
+<body>
+    <header class="header-institucional">
+        <div class="logos-container">
+            <img src="assets/IMG/Logo_TEC2.png" alt="Logo ITS" class="logo-img">
+            <h1>Instituto Tecnológico de Saltillo</h1>
+            <img src="assets/IMG/TecNM_logo.png" alt="Logo TecNM" class="logo-img">
+        </div>
+        <div class="banner-maroon">
+            <span class="left">Menu</span>
+            <span class="right">Roles</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <div class="field">
+                <label>Nombre del Rol</label>
+                <input type="text" id="nombreRol" placeholder="Escribe el nombre del rol...">
+            </div>
+            <div class="button-group">
+                <button type="button" id="btnGuardarRol" class="btn-action">GUARDAR</button>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <h2 class="table-title">Roles Registrados</h2>
+            <div class="table-wrapper">
+                <table id="tablaRoles">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">ID</th>
+                            <th>Nombre del Rol</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/gestionar_roles.js"></script>
+</body>
+</html>

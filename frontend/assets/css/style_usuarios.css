@@ -94,3 +94,20 @@ button:disabled {
 table { width: 100%; border-collapse: collapse; }
 th { text-align: left; padding: 12px; border-bottom: 1px solid #ccc; }
 td { padding: 10px; }
+
+/* Efecto para que las filas de la tabla resalten al pasar el mouse */
+#tablaUsuarios tbody tr:hover {
+    background-color: #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+/* Color cuando se le da clic (opcional) */
+#tablaUsuarios tbody tr:active {
+    background-color: #dee2e6;
+}
+
+/* Asegurar que la tabla ocupe el espacio */
+.table-wrapper {
+    max-height: 300px;
+    overflow-y: auto; /* Permite scroll si hay muchos usuarios */
+}

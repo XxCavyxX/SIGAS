@@ -7,10 +7,62 @@ const btnActualizar = document.getElementById('btnActualizar');
 const btnBorrar = document.getElementById('btnBorrar');
 
 // Se ejecuta al cargar la página
+// 1. Asegúrate de que se llame al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     cargarOpciones();
-    configuracionInicial();
+    actualizarTabla(); 
 });
+
+// 2. Función para llenar la tabla dinámicamente
+async function actualizarTabla() {
+    try {
+        const res = await fetch(`${API_URL}/listar`);
+        const data = await res.json();
+        
+        const tbody = document.querySelector('#tablaUsuarios tbody');
+        if (!tbody) return;
+        tbody.innerHTML = ''; // Limpiamos la tabla antes de llenar
+
+        if (data.success) {
+            data.usuarios.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer'; // Para que el mouse cambie al pasar
+                
+                tr.innerHTML = `
+                    <td>${user.Nombre} ${user.Paterno}</td>
+                    <td>${user.Correo}</td>
+                    <td>${user.nombre_depto || 'Sin asignar'}</td>
+                    <td>${user.nombre_rol || 'Sin asignar'}</td>
+                `;
+
+                // EVENTO: Al hacer clic en la fila, se rellenan los inputs de arriba
+                tr.addEventListener('click', () => rellenarFormulario(user));
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (err) {
+        console.error("Error al actualizar tabla:", err);
+    }
+}
+
+// 3. Función para rellenar los campos de inmediato
+function rellenarFormulario(user) {
+    document.getElementById('userId').value = user.ID_usuarios;
+    document.getElementById('nombre').value = user.Nombre || '';
+    document.getElementById('paterno').value = user.Paterno || '';
+    document.getElementById('materno').value = user.Materno || '';
+    document.getElementById('correo').value = user.Correo || '';
+    document.getElementById('telefono').value = user.Telefono || '';
+    document.getElementById('pass').value = user.Pass || '';
+    document.getElementById('sexo').value = user.Sexo_ID_Sexo;
+    document.getElementById('depto').value = user.Departamentos_ID_Departamentos;
+    document.getElementById('rol').value = user.Roles_ID_roles;
+
+    // Cambiamos el estado de los botones: Bloqueamos Guardar, activamos el resto
+    document.getElementById('btnGuardar').disabled = true;
+    document.getElementById('btnActualizar').disabled = false;
+    document.getElementById('btnBorrar').disabled = false;
+}
 
 // Estado inicial de los botones (Opacos/Desactivados)
 function configuracionInicial() {
@@ -114,50 +166,51 @@ btnGuardar.addEventListener('click', async () => {
     }
 });
 
-// 4. ACTUALIZAR
+// EVENTO ACTUALIZAR
 btnActualizar.addEventListener('click', async () => {
     const datos = obtenerDatosForm();
     try {
         const res = await fetch(`${API_URL}/actualizar`, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos)
         });
-        if (res.ok) {
-            alert("Datos actualizados correctamente");
+        const result = await res.json();
+        
+        if (result.success) {
+            alert(result.message);
+            actualizarTabla(); // REFRESCAR TABLA INMEDIATAMENTE
             form.reset();
             configuracionInicial();
         }
     } catch (err) {
-        console.error(err);
+        console.error("Error en el PUT:", err);
     }
 });
 
-// 5. BORRAR
+// EVENTO BORRAR
 btnBorrar.addEventListener('click', async () => {
+    const id = document.getElementById('userId').value;
     const nombre = document.getElementById('nombre').value;
-    if (!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
+    
+    if (!id) return alert("Selecciona un usuario primero");
+    if (!confirm(`¿Seguro que quieres borrar a ${nombre}?`)) return;
 
     try {
         const res = await fetch(`${API_URL}/borrar`, {
             method: 'DELETE',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nombre })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id }) // Mandamos el ID
         });
-        if (res.ok) {
-            alert("Usuario eliminado");
-            form.reset();
-            configuracionInicial();
-        }
-    } catch (err) {
-        console.error(err);
-    }
+        // ... resto del código (alert, actualizarTabla, reset)
+    } catch (err) { console.error(err); }
 });
-
 // Función auxiliar para recolectar datos
+// Función para capturar los datos (Asegúrate de que el ID 'nombre' sea el correcto)
 function obtenerDatosForm() {
     return {
-        nombre: document.getElementById('nombre').value,
+        id: document.getElementById('userId').value, // <-- El valor del campo oculto
+        nombre: document.getElementById('nombre').value.trim(),
         paterno: document.getElementById('paterno').value,
         materno: document.getElementById('materno').value,
         pass: document.getElementById('pass').value,
@@ -168,3 +221,32 @@ function obtenerDatosForm() {
         rol: document.getElementById('rol').value
     };
 }
+
+// Ejemplo de cómo debe verse el evento de Actualizar
+btnActualizar.addEventListener('click', async () => {
+    const datos = obtenerDatosForm();
+    
+    // Validación extra en frontend
+    if (!datos.nombre) {
+        alert("Primero selecciona un usuario de la tabla o escribe su nombre.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/actualizar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+            alert(result.message);
+            actualizarTabla(); // Recargamos la tabla para ver el cambio
+            form.reset();
+            configuracionInicial();
+        }
+    } catch (err) {
+        console.error("Error al actualizar:", err);
+    }
+});

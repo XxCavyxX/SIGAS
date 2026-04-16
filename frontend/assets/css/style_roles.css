@@ -1,0 +1,88 @@
+:root {
+    --it-maroon: #7b1e34; /* Guinda institucional */
+    --tec-gray: #e0e0e0;  /* Gris de tabla */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f5f5f5;
+}
+
+/* Header Institucional */
+.logos-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    background: white;
+}
+
+.logos-container h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.logo-img { height: 70px; }
+
+.banner-maroon {
+    background-color: var(--it-maroon);
+    color: white;
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+/* Contenedor */
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.btn-action {
+    margin-top: 15px;
+    padding: 10px 30px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Tabla image_bfe367.png */
+.table-title { font-size: 1.2rem; margin-top: 30px; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #eee;
+}
+
+thead th {
+    background-color: var(--tec-gray);
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #ccc;
+}
+
+tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}

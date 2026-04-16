@@ -48,42 +48,63 @@ router.post('/', async (req, res) => {
     }
 });
 
-module.exports = router;
-
-// 4. Actualizar usuario existente
-router.put('/:id', async (req, res) => {
-    const { id } = req.params;
-    const { 
-        Sexo_ID_Sexo, Roles_ID_roles, Departamentos_ID_Departamentos, 
-        Pass, Nombre, Paterno, Materno, Correo, Telefono 
-    } = req.body;
-
+// Obtener todos los usuarios para llenar la tabla
+router.get('/listar', async (req, res) => {
     try {
         const query = `
-            UPDATE Usuarios SET 
-            Sexo_ID_Sexo = ?, Roles_ID_roles = ?, Departamentos_ID_Departamentos = ?, 
-            Pass = ?, Nombre = ?, Paterno = ?, Materno = ?, Correo = ?, Telefono = ?
-            WHERE ID_Usuarios = ?
-        `;
-        await db.query(query, [
-            Sexo_ID_Sexo, Roles_ID_roles, Departamentos_ID_Departamentos, 
-            Pass, Nombre, Paterno, Materno, Correo, Telefono, id
-        ]);
+            SELECT u.Nombre, u.Paterno, u.Materno, u.Correo, u.Telefono, u.Pass,
+                   u.Sexo_ID_Sexo, u.Departamentos_ID_Departamentos, u.Roles_ID_roles,
+                   d.Nombre AS nombre_depto, r.Nombre AS nombre_rol
+            FROM Usuarios u
+            LEFT JOIN Departamentos d ON u.Departamentos_ID_Departamentos = d.ID_Departamentos
+            LEFT JOIN Roles r ON u.Roles_ID_roles = r.ID_roles`;
         
-        res.json({ success: true, message: "Usuario actualizado correctamente." });
+        const [usuarios] = await db.query(query);
+        res.json({ success: true, usuarios });
     } catch (error) {
+        console.error("Error al listar usuarios:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// 5. Borrar usuario
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
+module.exports = router;
+
+// 4. Actualizar usuario existente
+// ACTUALIZAR POR ID
+router.put('/actualizar', async (req, res) => {
     try {
-        await db.query('DELETE FROM Usuarios WHERE ID_Usuarios = ?', [id]);
-        res.json({ success: true, message: "Usuario eliminado." });
+        const { id, nombre, paterno, materno, pass, correo, telefono, sexo, depto, rol } = req.body;
+
+        if (!id) return res.status(400).json({ success: false, message: "ID de usuario necesario" });
+
+        const query = `UPDATE Usuarios SET 
+            Nombre = ?, Paterno = ?, Materno = ?, Pass = ?, Correo = ?, 
+            Telefono = ?, Sexo_ID_Sexo = ?, Departamentos_ID_Departamentos = ?, 
+            Roles_ID_roles = ?
+            WHERE ID_usuarios = ?`; // <-- Ahora usamos el ID
+        
+        const [result] = await db.query(query, [
+            nombre, paterno, materno, pass, correo, telefono, sexo, depto, rol, id
+        ]);
+
+        res.json({ success: true, message: "Usuario actualizado con éxito" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.sqlMessage });
+    }
+});
+
+// BORRAR POR ID
+router.delete('/borrar', async (req, res) => {
+    try {
+        const { id } = req.body;
+        if (!id) return res.status(400).json({ success: false, message: "ID necesario" });
+
+        const query = `DELETE FROM Usuarios WHERE ID_usuarios = ?`;
+        await db.query(query, [id]);
+
+        res.json({ success: true, message: "Usuario eliminado" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.sqlMessage });
     }
 });
 
