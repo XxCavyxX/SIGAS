@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const usuariosRoutes = require('./routes/usuarios');
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 // Uso de rutas modulares
 app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {

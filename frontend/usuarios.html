@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAS - Gestión de Usuarios ITS</title>
+    <link rel="stylesheet" href="assets/css/style_usuarios.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <img src="assets/IMG/Logo_TEC2.png" alt="TecNM">
+        <h1>Instituto Tecnológico de Saltillo</h1>
+        <img src="assets/IMG/TecNM_logo.png" alt="ITS">
+    </header>
+
+    <div class="banner-title">
+        <span class="left">Menu</span>
+        <span class="center">Usuarios</span>
+    </div>
+
+    <main class="container">
+        <form id="usuarioForm">
+            <div class="form-grid">
+                <div class="col">
+                    <div class="field">
+                        <label>Nombre</label>
+                        <input type="text" id="nombre" name="Nombre" required>
+                    </div>
+                    <div class="field">
+                        <label>Apellido Paterno</label>
+                        <input type="text" id="paterno" name="Paterno">
+                    </div>
+                    <div class="field">
+                        <label>Apellido Materno</label>
+                        <input type="text" id="materno" name="Materno">
+                    </div>
+                    <div class="field">
+                        <label>Contraseña</label>
+                        <input type="password" id="pass" name="Pass">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="field">
+                        <label>Sexo</label>
+                        <select id="sexo" name="Sexo_ID_Sexo">
+                            <option value="" disabled selected>Seleccione...</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Departamento</label>
+                        <select id="depto" name="Departamentos_ID_Departamentos">
+                            <option value="" disabled selected>Seleccione...</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Rol del usuario</label>
+                        <select id="rol" name="Roles_ID_roles">
+                            <option value="" disabled selected>Seleccione...</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Número telefónico</label>
+                        <input type="text" id="telefono" name="Telefono">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="field">
+                        <label>Correo electrónico</label>
+                        <input type="email" id="correo" name="Correo">
+                    </div>
+                    
+                    <div class="actions">
+                        <button type="button" id="btnGuardar">Guardar</button>
+                        <button type="button" id="btnActualizar">Actualizar</button>
+                        <button type="button" id="btnBorrar">Borrar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <section class="table-section">
+            <h3>Usuarios</h3>
+            <div class="table-wrapper">
+                <table id="tablaUsuarios">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Departamento</th>
+                            <th>Rol</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="./assets/js/gestion_usuarios.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+:root {
+    --guindo: #6a1b31;
+    --blanco: #ffffff;
+    --gris-fondo: #f0f0f0;
+    --gris-input: #e0e0e0;
+}
+
+body {
+    background-color: var(--gris-fondo);
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.main-header {
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5%;
+    border-bottom: 3px solid var(--guindo);
+}
+
+.main-header img { height: 50px; }
+
+.banner-title {
+    background: var(--guindo);
+    color: white;
+    padding: 8px 5%;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+.container { padding: 20px 5%; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 4px;
+}
+
+.field { margin-bottom: 15px; }
+
+.field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.field input, .field select {
+    width: 100%;
+    padding: 10px;
+    background: var(--gris-input);
+    border: none;
+    border-radius: 2px;
+}
+
+/* Botones y Estados */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    background: var(--gris-input);
+    transition: 0.3s;
+}
+
+#btnGuardar:not(:disabled) { background: var(--guindo); color: white; }
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Tabla */
+.table-section { margin-top: 30px; }
+.table-wrapper {
+    background: var(--gris-input);
+    min-height: 150px;
+    border-radius: 4px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 12px; border-bottom: 1px solid #ccc; }
+td { padding: 10px; }
