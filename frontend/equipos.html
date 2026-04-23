@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAS - Gestión de Equipos</title>
+    <link rel="stylesheet" href="assets/css/style_equipos.css">
+</head>
+<body>
+    <header class="header-institucional">
+        <div class="logos-container">
+            <img src="assets/IMG/Logo_TEC2.png" alt="Logo ITS" class="logo-img">
+            <h1>Instituto Tecnológico de Saltillo</h1>
+            <img src="assets/IMG/TecNM_logo.png" alt="Logo TecNM" class="logo-img">
+        </div>
+        <div class="banner-maroon">
+            <span class="left">Menu</span>
+            <span class="right">Equipos</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <div class="grid-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 2;">
+    <div class="field">
+        <label>Salón</label>
+        <select id="salon" class="form-select">
+            <option value="">Seleccione un salón...</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>Fecha entrada</label>
+        <input type="date" id="fecha">
+    </div>
+    <div class="field">
+        <label>Nombre del Equipo</label>
+        <input type="text" id="nombreEquipo">
+    </div>
+    <div class="field">
+        <label>Clave de equipo</label>
+        <input type="text" id="clave">
+    </div>
+    <div class="field">
+        <label>Tipo de equipo</label>
+        <input type="text" id="tipo">
+    </div>
+    <div class="field">
+        <label>Componentes (Ctrl + Click para varios)</label>
+        <select id="componentes" class="form-select" multiple style="height: 80px;">
+            </select>
+    </div>
+</div>
+
+            <div class="actions-container" style="display: flex; align-items: center; justify-content: flex-end; gap: 20px; margin-top: 20px;">
+                <div id="statusIndicator" style="font-weight: bold; font-size: 1.2em;"></div>
+                
+                <div class="button-column" style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="button" id="btnGuardar" class="btn-action">Guardar</button>
+                    <button type="button" id="btnActualizar" class="btn-action" disabled>Actualizar</button>
+                    <button type="button" id="btnBorrar" class="btn-action" disabled>Borrar</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <h2 class="table-title">Equipos</h2>
+            <div class="table-wrapper">
+                <table id="tabla-equipos">
+                    <thead>
+                        <tr>
+                            <th>Clave</th>
+                            <th>Nombre</th>
+                            <th>Salón</th>
+                            <th>Tipo</th>
+                            <th>Fecha Entrada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <script src="assets/js/gestionar_equipos.js"></script>
+    <script src="assets/js/gestionar_equipos.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const usuariosRoutes = require('./routes/usuarios');
 const rolesRoutes = require('./routes/roles');
 const deptosRoutes = require('./routes/departamentos'); 
+const equiposRoutes = require('./routes/equipos');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/deptos', deptosRoutes);
+app.use('/api/equipos', equiposRoutes);
 
 // 2. ARCHIVOS ESTÁTICOS (Sirve la carpeta frontend)
 app.use(express.static(path.join(__dirname, '../frontend')));
