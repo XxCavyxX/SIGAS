@@ -66,6 +66,29 @@ input[type="text"] {
     font-weight: bold;
 }
 
+.btn-edit {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.btn-delete {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.btn-edit:hover, .btn-delete:hover {
+    opacity: 0.8;
+}
+
 /* Tabla image_bfe367.png */
 .table-title { font-size: 1.2rem; margin-top: 30px; }
 
