@@ -57,14 +57,14 @@
                     body: JSON.stringify({ nombre, pass })
                 });
 
-                // Verificamos si la respuesta es JSON antes de procesarla
+                // Verificamos si la respuesta es JSON antes de
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const result = await response.json();
 
                     if (result.success) {
                         alert(result.message);
-                        // Aquí podrías redirigir: window.location.href = "dashboard.html";
+                        window.location.href = "equipos.html";
                     } else {
                         alert(result.message);
                     }
