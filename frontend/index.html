@@ -7,6 +7,8 @@
     <title>SIGAS - Login TecNM</title>
     <link rel="stylesheet" href="assets/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- IMPORTANTE: Agregamos SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -40,33 +42,51 @@
 
     <script>
         const loginForm = document.getElementById('loginForm');
+        
+        // Configuración global para los Toasts de error
+        const ToastError = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const nombre = document.getElementById('usuario').value;
-            const pass = document.getElementById('password').value;
+            const passInput = document.getElementById('password');
+            const pass = passInput.value;
 
             try {
-                // La URL debe incluir /auth según la configuración del app.use
                 const response = await fetch('http://localhost:3000/api/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, pass })
                 });
 
-                // Verificamos si la respuesta es JSON antes de
                 const contentType = response.headers.get("content-type");
+                
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const result = await response.json();
 
                     if (result.success) {
-                        alert(result.message);
-                        window.location.href = "equipos.html";
+                        // 1. Guardamos la información necesaria para el menú
+                        localStorage.setItem('userRole', result.user.Roles_ID_roles);
+                        localStorage.setItem('userName', result.user.Nombre);
+                        localStorage.setItem('showWelcome', 'true');
+
+                        // 2. Redirección inmediata (el mensaje saldrá en menu.html)
+                        window.location.href = "menu.html"; 
                     } else {
-                        alert(result.message);
+                        // 3. Toast de error (estilo image_fe347c.png)
+                        ToastError.fire({
+                            icon: 'error',
+                            title: result.message || 'Credenciales inválidas'
+                        });
+                        // Limpiar solo la contraseña
+                        passInput.value = "";
                     }
                 } else {
                     console.error("El servidor no respondió con JSON");
@@ -74,10 +94,12 @@
 
             } catch (error) {
                 console.error("Error al conectar:", error);
-                alert("No se pudo establecer conexión con el servidor de SIGAS.");
+                ToastError.fire({
+                    icon: 'error',
+                    title: 'No hay conexión con el servidor'
+                });
             }
         });
     </script>
 </body>
-
 </html>
