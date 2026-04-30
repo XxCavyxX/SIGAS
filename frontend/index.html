@@ -7,7 +7,6 @@
     <title>SIGAS - Login TecNM</title>
     <link rel="stylesheet" href="assets/CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- IMPORTANTE: Agregamos SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -17,13 +16,14 @@
             <div class="header">
                 <img src="assets/IMG/Logo_TEC2.png" alt="Logo TecNM" class="logo">
                 <h1>SIGAS</h1>
-                <p>Sistema de Gestion de Activos</p>
+                <p>Sistema de Gestión de Activos</p>
             </div>
 
             <form id="loginForm">
                 <div class="input-group">
-                    <label for="usuario">Nombre de Usuario</label>
-                    <input type="text" id="usuario" name="nombre" placeholder="Ingresa tu nombre" required>
+                    <label for="correo">Correo Institucional</label>
+                    <!-- Cambiado ID a "correo" para coincidir con el JS -->
+                    <input type="email" id="correo" name="correo" placeholder="usuario@saltillo.tecnm.mx" required>
                 </div>
 
                 <div class="input-group">
@@ -43,7 +43,6 @@
     <script>
         const loginForm = document.getElementById('loginForm');
         
-        // Configuración global para los Toasts de error
         const ToastError = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -55,7 +54,8 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const nombre = document.getElementById('usuario').value;
+            // Capturamos el valor del correo
+            const correo = document.getElementById('correo').value;
             const passInput = document.getElementById('password');
             const pass = passInput.value;
 
@@ -63,7 +63,8 @@
                 const response = await fetch('http://localhost:3000/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, pass })
+                    // Enviamos "correo" en lugar de "nombre"
+                    body: JSON.stringify({ correo, pass })
                 });
 
                 const contentType = response.headers.get("content-type");
@@ -72,21 +73,17 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        // 1. Guardamos la información necesaria para el menú
                         localStorage.setItem('userRole', result.user.Roles_ID_roles);
-                        localStorage.setItem('userName', result.user.Nombre);
+                        localStorage.setItem('userCorreo', result.user.Correo);
                         localStorage.setItem('showWelcome', 'true');
 
-                        // 2. Redirección inmediata (el mensaje saldrá en menu.html)
                         window.location.href = "menu.html"; 
                     } else {
-                        // 3. Toast de error (estilo image_fe347c.png)
                         ToastError.fire({
                             icon: 'error',
-                            title: result.message || 'Credenciales inválidas'
+                            title: result.message || 'Contraseña o correo incorrectos'
                         });
-                        // Limpiar solo la contraseña
-                        passInput.value = "";
+                        passInput.value = ""; // Borrar solo contraseña
                     }
                 } else {
                     console.error("El servidor no respondió con JSON");

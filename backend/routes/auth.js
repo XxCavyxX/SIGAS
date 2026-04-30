@@ -4,9 +4,9 @@ const db = require('../database');
 
 // Endpoint: POST /api/auth/login
 router.post('/login', async (req, res) => {
-    const { nombre, pass } = req.body;
+    const { correo, pass } = req.body;
 
-    if (!nombre || !pass) {
+    if (!correo || !pass) {
         return res.status(400).json({
             success: false,
             message: "Campos incompletos."
@@ -15,8 +15,8 @@ router.post('/login', async (req, res) => {
 
     try {
         const [rows] = await db.query(
-            'SELECT Nombre, Roles_ID_roles FROM Usuarios WHERE Nombre = ? AND Pass = ?',
-            [nombre, pass]
+            'SELECT Correo, Roles_ID_roles FROM Usuarios WHERE Correo = ? AND Pass = ?',
+            [correo, pass]
         );
 
         if (rows.length > 0) {
