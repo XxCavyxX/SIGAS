@@ -49,6 +49,34 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: white; }
     transition: 0.3s;
 }
 
+/* Botones de la tabla */
+.btn-editar-tabla {
+    background-color: #4caf50; /* Verde */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.btn-borrar-tabla {
+    background-color: #f44336; /* Rojo */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Alineación de la celda de acciones */
+.acciones-celda {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
 /* Estilo para botones desactivados */
 button:disabled {
     background-color: #e0e0e0 !important;

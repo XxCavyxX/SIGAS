@@ -15,18 +15,28 @@ router.get('/listar', async (req, res) => {
 });
 
 // B. Crear con validación de duplicados
+// B. Crear con validación de duplicados
 router.post('/guardar', async (req, res) => {
     const { nombre } = req.body;
     try {
-        // Validación de duplicados
         const [existe] = await db.query('SELECT * FROM Departamentos WHERE Nombre = ?', [nombre]);
-        if (existe.length > 0) return res.json({ success: false, message: "Ya existe este departamento" });
+        
+        if (existe.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "departamento ya existente" 
+            });
+        }
 
         await db.query('INSERT INTO Departamentos (Nombre, Estatus_id_Estatus) VALUES (?, 1)', [nombre]);
         res.json({ success: true, message: "Departamento guardado" });
-    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    } catch (error) { 
+        if (error.errno === 1062) {
+            return res.status(400).json({ success: false, message: "departamento ya existente" });
+        }
+        res.status(500).json({ success: false, message: error.message }); 
+    }
 });
-// backend/routes/deptos.js
 
 // Ruta para actualizar por nombre
 router.put('/actualizar-por-nombre', async (req, res) => {
@@ -36,8 +46,11 @@ router.put('/actualizar-por-nombre', async (req, res) => {
             'UPDATE Departamentos SET Nombre = ? WHERE Nombre = ?', 
             [nombreNuevo, nombreAnterior]
         );
-        res.json({ success: true, message: "Cambios guardados en la base de datos" });
+        res.json({ success: true, message: "Cambios guardados" });
     } catch (error) {
+        if (error.errno === 1062) {
+            return res.status(400).json({ success: false, message: "departamento ya existente" });
+        }
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -46,15 +59,11 @@ router.put('/actualizar-por-nombre', async (req, res) => {
 router.put('/borrar-por-nombre', async (req, res) => {
     const { nombre } = req.body;
     try {
-        const [result] = await db.query(
+        await db.query(
             'UPDATE Departamentos SET Estatus_id_Estatus = 2 WHERE Nombre = ?', 
             [nombre]
         );
-        
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "Departamento no encontrado" });
-        }
-        res.json({ success: true, message: "Departamento dado de baja correctamente" });
+        res.json({ success: true, message: "Departamento dado de baja" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

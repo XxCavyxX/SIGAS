@@ -1,8 +1,6 @@
 const API_URL = 'http://localhost:3000/api/deptos';
 
-// Variable global para rastrear el nombre original antes de ser editado
-let nombreOriginal = ""; 
-
+// Configuración Toast para notificaciones en la esquina (Imagen 2)
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -11,90 +9,89 @@ const Toast = Swal.mixin({
     timerProgressBar: true
 });
 
-function mostrarToast(mensaje, tipo = 'success') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${tipo}`;
-    toast.innerText = mensaje;
-
-    container.appendChild(toast);
-
-    // Eliminar la notificación después de 3 segundos
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
-
-// 1. Cargar datos al iniciar y configurar eventos
 document.addEventListener('DOMContentLoaded', () => {
     cargarDepartamentos(); 
-    gestionarBotones(false); 
-
     document.getElementById('btnGuardar').addEventListener('click', guardarDepto);
-    document.getElementById('btnActualizar').addEventListener('click', actualizarDepto);
-    document.getElementById('btnBorrar').addEventListener('click', () => {
-        const nombre = document.getElementById('nombreDepto').value.trim();
-        if (nombre) eliminarDepto(nombre);
-        else mostrarToast("Selecciona un departamento primero", "error");
-    });
 });
 
-// Función para habilitar/deshabilitar botones según la selección
-function gestionarBotones(seleccionado) {
-    document.getElementById('btnGuardar').disabled = seleccionado;
-    document.getElementById('btnActualizar').disabled = !seleccionado;
-    document.getElementById('btnBorrar').disabled = !seleccionado;
+// Función para cargar la tabla con estilos de la Imagen 3
+async function cargarDepartamentos() {
+    try {
+        const res = await fetch(`${API_URL}/listar`);
+        const data = await res.json();
+        const tbody = document.querySelector('#tabla-departamentos tbody');
+        
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (data.success && data.departamentos) {
+            data.departamentos.forEach(depto => {
+                const tr = document.createElement('tr');
+                
+                // Botones con clases para el CSS (Imagen 3)
+                tr.innerHTML = `
+                    <td>${depto.Nombre}</td>
+                    <td class="acciones-celda">
+                        <button class="btn-editar-tabla" onclick="abrirModalEditar('${depto.Nombre}')">Editar</button>
+                        <button class="btn-borrar-tabla" onclick="eliminarDepto('${depto.Nombre}')">Borrar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (err) {
+        console.error("Error al cargar:", err);
+    }
 }
 
-async function prepararBorrado() {
-    const nombre = document.getElementById('nombreDepto').value.trim();
-    if (!nombre) {
-        return Toast.fire({ icon: 'error', title: 'Selecciona un departamento' });
-    }
-
-    // Ventana emergente de confirmación
-    const resultado = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: `Vas a dar de baja el departamento: ${nombre}`,
-        icon: 'warning',
+// Ventana emergente centrada para editar (Imagen 4)
+async function abrirModalEditar(nombreActual) {
+    const { value: nuevoNombre } = await Swal.fire({
+        title: 'Editar Departamento',
+        input: 'text',
+        inputValue: nombreActual,
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, borrar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#6e54f3', // Color morado de tu imagen
+        cancelButtonColor: '#6c757d',
+        customClass: {
+            input: 'swal2-input-custom'
+        },
+        inputValidator: (value) => {
+            if (!value) return '¡El nombre no puede estar vacío!';
+        }
     });
 
-    if (resultado.isConfirmed) {
-        ejecutarBorrado(nombre);
+    if (nuevoNombre && nuevoNombre !== nombreActual) {
+        ejecutarActualizacion(nuevoNombre, nombreActual);
     }
 }
 
-async function ejecutarBorrado(nombre) {
+async function ejecutarActualizacion(nombreNuevo, nombreAnterior) {
     try {
-        const res = await fetch(`${API_URL}/borrar-por-nombre`, {
+        const res = await fetch(`${API_URL}/actualizar-por-nombre`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre })
+            body: JSON.stringify({ nombreNuevo, nombreAnterior })
         });
         const data = await res.json();
         
         if (data.success) {
             Toast.fire({ icon: 'success', title: data.message });
-            document.getElementById('nombreDepto').value = '';
-            gestionarBotones(false);
             cargarDepartamentos();
         } else {
             Toast.fire({ icon: 'error', title: data.message });
         }
     } catch (err) {
-        Toast.fire({ icon: 'error', title: 'Error al conectar con el servidor' });
+        Toast.fire({ icon: 'error', title: 'Error de conexión' });
     }
 }
 
-// 2. Función para GUARDAR un nuevo departamento
+// Guardar nuevo
 async function guardarDepto() {
     const nombre = document.getElementById('nombreDepto').value.trim();
-    if (!nombre) return Toast.fire({ icon: 'error', title: 'Ingresa un nombre' });
+    if (!nombre) return Toast.fire({ icon: 'warning', title: 'Ingresa un nombre' });
 
     try {
         const res = await fetch(`${API_URL}/guardar`, {
@@ -104,128 +101,39 @@ async function guardarDepto() {
         });
         const data = await res.json();
         
-        Toast.fire({ 
-            icon: data.success ? 'success' : 'error', 
-            title: data.message 
-        });
-
         if (data.success) {
+            Toast.fire({ icon: 'success', title: data.message });
             document.getElementById('nombreDepto').value = '';
             cargarDepartamentos();
+        } else {
+            Toast.fire({ icon: 'error', title: data.message });
         }
-    } catch (err) { console.error(err); }
-}
-
-// 3. Función para ACTUALIZAR
-async function actualizarDepto() {
-    const nombreNuevo = document.getElementById('nombreDepto').value.trim();
-    if (!nombreNuevo || !nombreOriginal) {
-        return Toast.fire({ icon: 'error', title: 'Selecciona un registro' });
-    }
-
-    try {
-        const res = await fetch(`${API_URL}/actualizar-por-nombre`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombreNuevo, nombreAnterior: nombreOriginal })
-        });
-        const data = await res.json();
-        
-        Toast.fire({ 
-            icon: data.success ? 'success' : 'error', 
-            title: data.message 
-        });
-
-        if (data.success) {
-            document.getElementById('nombreDepto').value = '';
-            nombreOriginal = "";
-            gestionarBotones(false);
-            cargarDepartamentos();
-        }
-    } catch (err) { console.error(err); }
-}
-// 4. Función para LLENAR LA TABLA
-async function cargarDepartamentos() {
-    try {
-        const res = await fetch(`${API_URL}/listar`);
-        const data = await res.json();
-        const tbody = document.querySelector('#tabla-departamentos tbody');
-        
-        tbody.innerHTML = '';
-
-        if (data.success && data.departamentos) {
-            data.departamentos.forEach(depto => {
-                const tr = document.createElement('tr');
-                tr.style.cursor = 'pointer';
-                tr.innerHTML = `
-                    <td>${depto.id}</td>
-                    <td>${depto.Nombre}</td>
-                `;
-
-                tr.addEventListener('click', () => {
-                    // LLENADO DE DATOS AL SELECCIONAR
-                    document.getElementById('nombreDepto').value = depto.Nombre;
-                    nombreOriginal = depto.Nombre; // GUARDAR EL VALOR ACTUAL
-                    gestionarBotones(true);
-                    
-                    document.querySelectorAll('#tabla-departamentos tr').forEach(r => r.style.background = '');
-                    tr.style.background = '#f0f0f0';
-                });
-
-                tbody.appendChild(tr);
-            });
-        }
-    } catch (err) {
-        console.error("Error al cargar:", err);
+    } catch (err) { 
+        Toast.fire({ icon: 'error', title: 'Error de conexión' });
     }
 }
 
-// 5. Función para BORRAR (BAJA LÓGICA)
+// Borrar con confirmación
 async function eliminarDepto(nombre) {
-    // 1. Ventana emergente para preguntar si está seguro
     const resultado = await Swal.fire({
         title: '¿Estás seguro?',
-        text: `Vas a dar de baja el departamento: ${nombre}`,
+        text: `Vas a dar de baja: ${nombre}`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6', // Azul para confirmar
-        cancelButtonColor: '#d33',    // Rojo para cancelar
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
     });
 
-    // Si el usuario cancela, no hacemos nada
-    if (!resultado.isConfirmed) return;
-
-    try {
+    if (resultado.isConfirmed) {
         const res = await fetch(`${API_URL}/borrar-por-nombre`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre: nombre })
+            body: JSON.stringify({ nombre })
         });
-        
         const data = await res.json();
-
-        // 2. Ventana emergente para mostrar el éxito o error
         if (data.success) {
-            Swal.fire({
-                title: '¡Eliminado!',
-                text: data.message,
-                icon: 'success',
-                timer: 2000, // Se cierra sola en 2 segundos
-                showConfirmButton: false
-            });
-
-            // Limpiar y refrescar
-            document.getElementById('nombreDepto').value = '';
-            gestionarBotones(false);
-            cargarDepartamentos(); 
-        } else {
-            Swal.fire('Error', data.message, 'error');
+            Toast.fire({ icon: 'success', title: data.message });
+            cargarDepartamentos();
         }
-
-    } catch (err) {
-        console.error("Error al eliminar:", err);
-        Swal.fire('Error de conexión', 'No se pudo contactar con el servidor', 'error');
     }
 }
