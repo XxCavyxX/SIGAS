@@ -116,24 +116,38 @@ async function guardarDepto() {
 // Borrar con confirmación
 async function eliminarDepto(nombre) {
     const resultado = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: `Vas a dar de baja: ${nombre}`,
+        title: `¿Dar de baja: ${nombre}?`,
+        text: "Se verificará que no existan usuarios vinculados a este departamento.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar'
+        confirmButtonColor: '#7b1e34', // Color guinda institucional
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, dar de baja',
+        cancelButtonText: 'Cancelar'
     });
 
     if (resultado.isConfirmed) {
-        const res = await fetch(`${API_URL}/borrar-por-nombre`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre })
-        });
-        const data = await res.json();
-        if (data.success) {
-            Toast.fire({ icon: 'success', title: data.message });
-            cargarDepartamentos();
+        try {
+            const res = await fetch(`${API_URL}/borrar-por-nombre`, {
+                method: 'PUT', // Cambiado a PUT porque es una actualización de estatus
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+                Toast.fire({ icon: 'success', title: data.message });
+                cargarDepartamentos();
+            } else {
+                // Aquí se mostrará el error de "hay X usuarios asignados"
+                Toast.fire({ 
+                    icon: 'error', 
+                    title: data.message 
+                });
+            }
+        } catch (err) {
+            Toast.fire({ icon: 'error', title: 'Error de conexión con el servidor' });
         }
     }
 }

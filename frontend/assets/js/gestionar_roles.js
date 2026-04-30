@@ -25,14 +25,11 @@ async function cargarRoles() {
         if (data.success && data.roles) {
             data.roles.forEach(rol => {
                 const fila = document.createElement('tr');
-                
-                // IMPORTANTE: Definimos exactamente 2 celdas (td)
-                // La primera para el Nombre y la segunda para los botones alineados a la derecha
                 fila.innerHTML = `
                     <td>${rol.Nombre}</td>
                     <td style="text-align: right;">
                         <button class="btn-edit" onclick="editarRol(${rol.ID_roles}, '${rol.Nombre}')">Editar</button>
-                        <button class="btn-delete" onclick="eliminarRol(${rol.ID_roles})">Borrar</button>
+                        <button class="btn-delete" onclick="eliminarRol(${rol.ID_roles}, '${rol.Nombre}')">Borrar</button>
                     </td>
                 `;
                 tablaBody.appendChild(fila);
@@ -111,26 +108,37 @@ async function editarRol(id, nombreActual) {
     }
 }
 
-async function eliminarRol(id) {
+// Función actualizada para Baja Lógica
+async function eliminarRol(id, nombre) {
     const confirmacion = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: "Esta acción no se puede deshacer",
+        title: `¿Dar de baja el rol: ${nombre}?`,
+        text: "Se verificará que no existan usuarios vinculados.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, borrar',
-        confirmButtonColor: '#7b1e34'
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#7b1e34',
+        cancelButtonColor: '#6c757d'
     });
 
     if (confirmacion.isConfirmed) {
         try {
             const res = await fetch(`${API_URL}/eliminar/${id}`, { method: 'DELETE' });
             const data = await res.json();
+
             if (data.success) {
                 Toast.fire({ icon: 'success', title: data.message });
                 cargarRoles();
+            } else {
+                // Aquí se mostrará: "No se puede dar de baja: hay X usuario(s) activos..."
+                // Usando el estilo de la imagen que proporcionaste
+                Toast.fire({ 
+                    icon: 'error', 
+                    title: data.message 
+                });
             }
         } catch (error) {
-            Toast.fire({ icon: 'error', title: 'Error al eliminar' });
+            Toast.fire({ icon: 'error', title: 'Error de comunicación con el servidor' });
         }
     }
 }
