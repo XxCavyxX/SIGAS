@@ -25,10 +25,12 @@ async function cargarRoles() {
         if (data.success && data.roles) {
             data.roles.forEach(rol => {
                 const fila = document.createElement('tr');
+                
+                // IMPORTANTE: Definimos exactamente 2 celdas (td)
+                // La primera para el Nombre y la segunda para los botones alineados a la derecha
                 fila.innerHTML = `
-                    <td>${rol.ID_roles}</td>
                     <td>${rol.Nombre}</td>
-                    <td>
+                    <td style="text-align: right;">
                         <button class="btn-edit" onclick="editarRol(${rol.ID_roles}, '${rol.Nombre}')">Editar</button>
                         <button class="btn-delete" onclick="eliminarRol(${rol.ID_roles})">Borrar</button>
                     </td>
@@ -60,38 +62,52 @@ async function guardarRol() {
 
         if (data.success) {
             Toast.fire({ icon: 'success', title: data.message });
-            nombreInput.value = ''; // Limpiar el input
-            cargarRoles(); // Refrescar la tabla
+            nombreInput.value = ''; 
+            cargarRoles(); 
         } else {
-            // AQUÍ SE MUESTRA LA VENTANA EMERGENTE DE ERROR
-            Swal.fire({
+            Toast.fire({
                 icon: 'error',
-                title: 'No se pudo agregar',
-                text: data.message, // Mostrará: "Este rol ya está dado de alta..."
-                confirmButtonColor: '#7b1e34' // Color guinda institucional
+                title: data.message
             });
         }
     } catch (err) {
         Toast.fire({ icon: 'error', title: 'Error de conexión con el servidor' });
     }
 }
+
 async function editarRol(id, nombreActual) {
     const { value: nuevoNombre } = await Swal.fire({
         title: 'Editar Rol',
         input: 'text',
         inputValue: nombreActual,
-        showCancelButton: true
+        showCancelButton: true,
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#6e54f3', 
+        cancelButtonColor: '#6c757d',
+        customClass: {
+            input: 'swal2-input-centrado'
+        }
     });
 
     if (nuevoNombre && nuevoNombre !== nombreActual) {
-        const res = await fetch(`${API_URL}/actualizar/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre: nuevoNombre })
-        });
-        const data = await res.json();
-        Toast.fire({ icon: 'success', title: data.message });
-        cargarRoles();
+        try {
+            const res = await fetch(`${API_URL}/actualizar/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nuevoNombre })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                Toast.fire({ icon: 'success', title: data.message });
+                cargarRoles();
+            } else {
+                Toast.fire({ icon: 'error', title: data.message });
+            }
+        } catch (error) {
+            Toast.fire({ icon: 'error', title: 'Error al actualizar' });
+        }
     }
 }
 
@@ -101,13 +117,20 @@ async function eliminarRol(id) {
         text: "Esta acción no se puede deshacer",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, borrar'
+        confirmButtonText: 'Sí, borrar',
+        confirmButtonColor: '#7b1e34'
     });
 
     if (confirmacion.isConfirmed) {
-        const res = await fetch(`${API_URL}/eliminar/${id}`, { method: 'DELETE' });
-        const data = await res.json();
-        Toast.fire({ icon: 'success', title: data.message });
-        cargarRoles();
+        try {
+            const res = await fetch(`${API_URL}/eliminar/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                Toast.fire({ icon: 'success', title: data.message });
+                cargarRoles();
+            }
+        } catch (error) {
+            Toast.fire({ icon: 'error', title: 'Error al eliminar' });
+        }
     }
 }

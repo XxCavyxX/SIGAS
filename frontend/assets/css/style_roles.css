@@ -109,3 +109,23 @@ tbody td {
     padding: 12px;
     border-bottom: 1px solid #ddd;
 }
+
+
+
+/* Asegura que los botones tengan espacio y no se peguen al borde derecho */
+td:last-child {
+    padding-right: 20px;
+}
+
+/* Alinea el texto de la cabecera de acciones a la derecha */
+thead th:last-child {
+    text-align: right;
+    padding-right: 20px;
+}
+
+/* Estilo para el input del SweetAlert para que no se desborde */
+.swal2-input-centrado {
+    box-sizing: border-box !important;
+    width: 80% !important;
+    margin: 15px auto !important;
+}
