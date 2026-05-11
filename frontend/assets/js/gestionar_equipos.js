@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnGuardar').addEventListener('click', guardarEquipo);
     document.getElementById('btnActualizar').addEventListener('click', actualizarEquipo);
     document.getElementById('btnBorrar').addEventListener('click', borrarEquipo);
+    document.getElementById('btnPDF').addEventListener('click', generarPDF);
 });
 
 // Cargar Salones en el Select
@@ -88,13 +89,23 @@ function seleccionarEquipo(eq) {
     document.getElementById('tipo').value = eq.Tipo || '';
     document.getElementById('fecha').value = eq.Fecha_Entrada ? eq.Fecha_Entrada.split('T')[0] : '';
     document.getElementById('clave').value = eq.ClaveUnicaEquipo || '';
+    // El motivo no se carga usualmente al seleccionar para edición, pero podrías hacerlo si quisieras:
+    document.getElementById('motivo').value = eq.Motivo || '';
 
     document.getElementById('btnActualizar').disabled = false;
     document.getElementById('btnBorrar').disabled = false;
     document.getElementById('btnGuardar').disabled = true;
 }
 
+// GUARDAR (ALTA)
 async function guardarEquipo() {
+    const motivo = document.getElementById('motivo').value;
+    
+    // Validación de motivo para el alta
+    if (!motivo) {
+        return Swal.fire('Atención', 'Por favor, ingrese un motivo para el alta del equipo.', 'warning');
+    }
+
     const componentesSelect = document.getElementById('componentes');
     const componentesSeleccionados = Array.from(componentesSelect.selectedOptions).map(opt => opt.value);
 
@@ -104,6 +115,7 @@ async function guardarEquipo() {
         tipo: document.getElementById('tipo').value,
         fecha: document.getElementById('fecha').value,
         clave: document.getElementById('clave').value,
+        motivo: motivo,
         componentes: componentesSeleccionados
     };
 
@@ -116,11 +128,11 @@ async function guardarEquipo() {
         const data = await res.json();
 
         if (data.success) {
-            Toast.fire({ icon: 'success', title: data.message });
+            Swal.fire('¡Éxito!', data.message, 'success');
             cargarEquipos();
             limpiarFormulario();
         } else {
-            Toast.fire({ icon: 'error', title: data.message });
+            Swal.fire('Error', data.message, 'error');
         }
     } catch (err) { Toast.fire({ icon: 'error', title: 'Error de conexión' }); }
 }
@@ -149,21 +161,104 @@ async function actualizarEquipo() {
     } catch (err) { console.error("Error:", err); }
 }
 
+// BORRAR (BAJA)
 async function borrarEquipo() {
-    try {
-        const res = await fetch(`${API_URL}/borrar/${idSeleccionado}`, { method: 'PUT' });
-        const data = await res.json();
-        if (data.success) {
-            Toast.fire({ icon: 'success', title: data.message });
-            cargarEquipos();
-            limpiarFormulario();
+    // 1. Pedir motivo obligatoriamente con SweetAlert2
+    const { value: motivoBaja } = await Swal.fire({
+        title: '¿Confirmar Baja de Equipo?',
+        text: "Indique la razón por la cual se retira el equipo del inventario:",
+        input: 'textarea',
+        inputPlaceholder: 'Ej: Falla irreparable, Donación, Reemplazo...',
+        showCancelButton: true,
+        confirmButtonColor: '#6a1b31',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: 'Confirmar Baja',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (!value) return '¡El motivo de la baja es obligatorio!';
         }
-    } catch (err) { console.error("Error:", err); }
+    });
+
+    if (motivoBaja) {
+        try {
+            const res = await fetch(`${API_URL}/borrar/${idSeleccionado}`, { 
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ motivo: motivoBaja }) 
+            });
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire('Baja Registrada', data.message, 'success');
+                cargarEquipos();
+                limpiarFormulario();
+            }
+        } catch (err) { console.error("Error:", err); }
+    }
+}
+
+// GENERAR PDF
+async function generarPDF() {
+    try {
+        const res = await fetch(`${API_URL}/reporte-completo`);
+        const data = await res.json();
+        
+        if (!data.success) return Swal.fire('Error', 'No se pudieron obtener los datos para el reporte', 'error');
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'pt', 'a4');
+
+        // Diseño del PDF
+        doc.setFontSize(22);
+        doc.setTextColor(44, 114, 161);
+        doc.text("SIGAS", 300, 50, { align: 'center' });
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text("SISTEMA DE GESTIÓN DE ACTIVOS", 300, 65, { align: 'center' });
+        
+        doc.setDrawColor(106, 27, 49); // Color guinda
+        doc.setLineWidth(2);
+        doc.line(40, 80, 560, 80);
+
+        doc.setFontSize(16);
+        doc.setTextColor(0);
+        doc.text("REPORTE DE INVENTARIO GENERAL", 300, 110, { align: 'center' });
+
+        const columns = [
+            { header: 'CLAVE', dataKey: 'ClaveUnicaEquipo' },
+            { header: 'EQUIPO (TIPO)', dataKey: 'EquipoInfo' },
+            { header: 'SALÓN', dataKey: 'Ubicacion' },
+            { header: 'ESTADO', dataKey: 'Estatus' }
+        ];
+
+        const rows = data.equipos.map(eq => ({
+            ClaveUnicaEquipo: eq.ClaveUnicaEquipo,
+            EquipoInfo: `${eq.Equipo}\n(${eq.Tipo})`,
+            Ubicacion: eq.Ubicacion || 'N/A',
+            Estatus: eq.Estatus || 'ACTIVO'
+        }));
+
+        doc.autoTable({
+            columns: columns,
+            body: rows,
+            startY: 140,
+            theme: 'grid',
+            headStyles: { fillColor: [106, 27, 49], textColor: [255, 255, 255] },
+            styles: { fontSize: 9 },
+            columnStyles: { 3: { halign: 'center', fontStyle: 'bold' } }
+        });
+
+        doc.save(`Reporte_SIGAS_${new Date().getTime()}.pdf`);
+
+    } catch (err) {
+        console.error("Error PDF:", err);
+        Swal.fire('Error', 'Hubo un problema al generar el documento PDF', 'error');
+    }
 }
 
 function limpiarFormulario() {
     idSeleccionado = null;
-    document.querySelectorAll('input, select').forEach(i => i.value = '');
+    document.querySelectorAll('input, select, textarea').forEach(i => i.value = '');
     document.getElementById('btnActualizar').disabled = true;
     document.getElementById('btnBorrar').disabled = true;
     document.getElementById('btnGuardar').disabled = false;
