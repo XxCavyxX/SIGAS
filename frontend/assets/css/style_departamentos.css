@@ -1,126 +1,155 @@
 :root {
-    --it-maroon: #7e1519;
+    /* Colores institucionales exactos */
+    --it-maroon: #6a1b31; 
     --it-gold: #b39055;
     --bg-gray: #f4f4f4;
+    --table-bg: #e9e9e9;
+    --text-dark: #333;
+    --success-green: #28a745;
+    --error-red: #dc3545;
 }
 
-body { font-family: Arial, sans-serif; margin: 0; background-color: white; }
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    background-color: var(--bg-gray); 
+    color: var(--text-dark);
+}
 
-.header-institucional { text-align: center; }
-.logos-container { display: flex; justify-content: space-around; align-items: center; padding: 10px; }
-.logo-img { height: 60px; }
+/* Header e Identidad */
+.header-institucional { background-color: white; border-bottom: 3px solid var(--it-gold); }
+.logos-container { display: flex; justify-content: space-between; align-items: center; padding: 10px 50px; }
+.logo-img { height: 70px; object-fit: contain; }
 
 .banner-maroon {
     background-color: var(--it-maroon);
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px;
     display: flex;
     justify-content: space-between;
     font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.container { padding: 30px; max-width: 1000px; margin: auto; }
+.container { padding: 40px 20px; max-width: 1100px; margin: auto; }
 
-/* Layout de la imagen de referencia */
-.input-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+/* Sección del Formulario */
+.form-section {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 40px;
 }
 
-.field { width: 60%; }
-.field label { display: block; font-weight: bold; margin-bottom: 10px; }
-.field input { width: 100%; padding: 12px; border: 1px solid #ccc; background: #e9e9e9; }
+.input-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 30px;
+}
 
+.field { flex: 1; }
+.field label { display: block; font-weight: bold; margin-bottom: 10px; color: var(--it-maroon); }
+.field input { 
+    width: 100%; 
+    padding: 12px; 
+    border: 2px solid #ddd; 
+    border-radius: 4px;
+    background: #fdfdfd;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.field input:focus {
+    border-color: var(--it-maroon);
+    outline: none;
+}
+
+/* Botones de Acción Principal */
 .button-column {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 150px;
+    gap: 12px;
+    width: 180px;
 }
 
 .btn-action {
-    background-color: #d1d1d1;
-    border: none;
-    padding: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-/* Botones de la tabla */
-.btn-editar-tabla {
-    background-color: #4caf50; /* Verde */
+    background-color: #555;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 12px;
+    font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
-    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+
+#btnGuardar { background-color: var(--it-maroon); }
+#btnGuardar:hover:not(:disabled) { background-color: #4d1022; }
+
+/* Tabla de Departamentos */
+.table-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.table-title { color: var(--it-maroon); border-bottom: 2px solid var(--it-gold); padding-bottom: 10px; margin-bottom: 20px; }
+
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; }
+
+th { 
+    background-color: #f8f8f8; 
+    color: var(--it-maroon);
+    padding: 15px; 
+    text-align: left; 
+    border-bottom: 2px solid #eee;
+}
+
+td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+tr:hover { background-color: #f9f9f9; }
+
+/* Botones dentro de la tabla */
+.acciones-celda {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-editar-tabla {
+    background-color: var(--success-green);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    cursor: pointer;
 }
 
 .btn-borrar-tabla {
-    background-color: #f44336; /* Rojo */
+    background-color: var(--error-red);
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 8px 15px;
     border-radius: 4px;
+    font-size: 0.85em;
     cursor: pointer;
 }
 
-/* Alineación de la celda de acciones */
-.acciones-celda {
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-/* Estilo para botones desactivados */
-button:disabled {
-    background-color: #e0e0e0 !important;
-    color: #a0a0a0 !important;
-    cursor: not-allowed;
-    border: 1px solid #d0d0d0;
-}
-
-/* Efecto hover solo cuando están activos */
-button:not(:disabled):hover {
-    background-color: #bcbcbc;
-    cursor: pointer;
-}
+/* Toasts y Feedback */
+#toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
 
 .toast {
-    min-width: 250px;
-    background-color: #333;
-    color: #fff;
-    padding: 16px;
-    border-radius: 8px;
+    min-width: 280px;
+    padding: 16px 20px;
+    border-radius: 4px;
+    color: white;
     margin-bottom: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    font-family: sans-serif;
-    animation: slideIn 0.5s, fadeOut 0.5s 2.5s forwards;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.toast.success { border-left: 5px solid #4CAF50; }
-.toast.error { border-left: 5px solid #f44336; }
-
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+/* Estados de Botones */
+button:disabled {
+    background-color: #ccc !important;
+    color: #888 !important;
+    cursor: not-allowed;
 }
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
-.btn-action:hover { background-color: #bcbcbc; }
-
-/* Tabla */
-.table-title { font-size: 1.2rem; margin-bottom: 10px; }
-.table-wrapper { background: #e9e9e9; min-height: 200px; padding: 10px; }
-table { width: 100%; border-collapse: collapse; }
-th { background-color: #d1d1d1; padding: 10px; text-align: left; }
-td { padding: 10px; border-bottom: 1px solid #ccc; }

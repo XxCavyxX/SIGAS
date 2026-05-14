@@ -1,0 +1,228 @@
+:root {
+    --it-maroon:   #6a1b31;
+    --it-gold:     #b39055;
+    --bg-gray:     #f4f4f4;
+    --table-bg:    #e9e9e9;
+    --text-dark:   #333;
+    --success:     #28a745;
+    --danger:      #dc3545;
+    --warning:     #ffc107;
+    --info:        #17a2b8;
+}
+ 
+* { box-sizing: border-box; }
+ 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: var(--bg-gray);
+    color: var(--text-dark);
+}
+ 
+/* ── HEADER ───────────────────────────────────────── */
+.header-institucional {
+    background: white;
+    border-bottom: 3px solid var(--it-gold);
+}
+.logos-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 50px;
+}
+.logo-img { height: 70px; object-fit: contain; }
+.banner-maroon {
+    background: var(--it-maroon);
+    color: white;
+    padding: 12px 25px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+ 
+/* ── CONTAINER ────────────────────────────────────── */
+.container {
+    padding: 30px 40px;
+    max-width: 1200px;
+    margin: auto;
+}
+ 
+/* ── FORM ─────────────────────────────────────────── */
+.form-section {
+    background: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    align-items: flex-start;
+}
+ 
+.grid-inputs {
+    flex: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+ 
+.field { display: flex; flex-direction: column; }
+.field label { font-weight: bold; margin-bottom: 5px; }
+ 
+.field input,
+.field select,
+.field textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: var(--table-bg);
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+ 
+.field textarea { height: 80px; resize: vertical; }
+ 
+.field-full { grid-column: span 2; }
+ 
+/* ── ACTIONS ──────────────────────────────────────── */
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    min-width: 160px;
+}
+ 
+.btn-action {
+    padding: 10px;
+    font-weight: bold;
+    border: 1px solid #999;
+    background: #ddd;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 0.85rem;
+}
+.btn-action:hover:not(:disabled) { background: #bbb; }
+.btn-action:disabled { cursor: not-allowed; opacity: 0.5; }
+ 
+.btn-guardar  { background: var(--it-maroon) !important; color: white !important; border-color: var(--it-maroon) !important; }
+.btn-pdf      { background: #2c3e50 !important;          color: white !important; border-color: #2c3e50 !important; }
+ 
+/* ── TABLE ────────────────────────────────────────── */
+.table-section {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+}
+.table-title { margin-top: 0; margin-bottom: 10px; color: var(--it-maroon); }
+ 
+.table-wrapper {
+    max-height: 350px;
+    overflow-y: auto;
+}
+ 
+table { width: 100%; border-collapse: collapse; }
+th {
+    background: #ddd;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #ccc;
+    font-size: 0.85rem;
+    position: sticky;
+    top: 0;
+}
+td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+tr:hover { background: #f2f2f2; cursor: pointer; }
+ 
+/* ── SEVERIDAD BADGES ─────────────────────────────── */
+.badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: white;
+}
+.badge-Baja     { background: var(--info); }
+.badge-Media    { background: var(--warning); color: #333; }
+.badge-Alta     { background: var(--danger); }
+.badge-Critica  { background: #6f42c1; }
+ 
+.badge-Pendiente   { background: var(--warning); color: #333; }
+.badge-En-proceso  { background: var(--info); }
+.badge-Resuelta    { background: var(--success); }
+ 
+/* ── MODAL OVERLAY (vista previa reporte) ─────────── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+}
+.modal-overlay.activo { display: flex; }
+ 
+.modal-box {
+    background: white;
+    width: 90%;
+    max-width: 860px;
+    max-height: 85vh;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+ 
+.modal-header {
+    background: var(--it-maroon);
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+.modal-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+}
+ 
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+ 
+.modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.btn-descargar {
+    background: var(--it-maroon);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.btn-cerrar-modal {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+ 

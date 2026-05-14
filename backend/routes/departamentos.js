@@ -18,7 +18,11 @@ router.get('/listar', async (req, res) => {
 router.post('/guardar', async (req, res) => {
     const { nombre } = req.body;
     try {
-        const [existe] = await db.query('SELECT * FROM Departamentos WHERE Nombre = ? AND Estatus_id_Estatus = 1', [nombre]);
+        // Validar si ya existe uno activo con ese nombre
+        const [existe] = await db.query(
+            'SELECT * FROM Departamentos WHERE Nombre = ? AND Estatus_id_Estatus = 1', 
+            [nombre]
+        );
         
         if (existe.length > 0) {
             return res.status(400).json({ 
@@ -27,19 +31,22 @@ router.post('/guardar', async (req, res) => {
             });
         }
 
-        await db.query('INSERT INTO Departamentos (Nombre, Estatus_id_Estatus) VALUES (?, 1)', [nombre]);
+        await db.query(
+            'INSERT INTO Departamentos (Nombre, Estatus_id_Estatus) VALUES (?, 1)', 
+            [nombre]
+        );
         res.json({ success: true, message: "Departamento guardado con éxito" });
     } catch (error) { 
         res.status(500).json({ success: false, message: error.message }); 
     }
 });
 
-// Ruta para actualizar
+// C. Actualizar por nombre
 router.put('/actualizar-por-nombre', async (req, res) => {
     const { nombreNuevo, nombreAnterior } = req.body;
     try {
         await db.query(
-            'UPDATE Departamentos SET Nombre = ? WHERE Nombre = ?', 
+            'UPDATE Departamentos SET Nombre = ? WHERE Nombre = ? AND Estatus_id_Estatus = 1', 
             [nombreNuevo, nombreAnterior]
         );
         res.json({ success: true, message: "Cambios guardados correctamente" });
@@ -51,24 +58,26 @@ router.put('/actualizar-por-nombre', async (req, res) => {
     }
 });
 
-// C. Borrado lógico con VALIDACIÓN DE USUARIOS
-// C. Borrado lógico con VALIDACIÓN DE USUARIOS
+// D. Borrado lógico con VALIDACIÓN DE USUARIOS VINCULADOS
 router.put('/borrar-por-nombre', async (req, res) => {
     const { nombre } = req.body;
     try {
-        // 1. Obtenemos el ID del departamento
-        const [depto] = await db.query('SELECT ID_Departamentos FROM Departamentos WHERE Nombre = ?', [nombre]);
+        // 1. Obtener el ID del departamento (Respetando ID_Departamentos)
+        const [depto] = await db.query(
+            'SELECT ID_Departamentos FROM Departamentos WHERE Nombre = ? AND Estatus_id_Estatus = 1', 
+            [nombre]
+        );
         
         if (depto.length === 0) {
-            return res.status(404).json({ success: false, message: "Departamento no encontrado" });
+            return res.status(404).json({ success: false, message: "Departamento no encontrado o ya está inactivo" });
         }
 
         const deptoId = depto[0].ID_Departamentos;
 
-        // 2. Verificamos usuarios vinculados
-        // CAMBIO AQUÍ: Usamos Departamentos_id_Departamentos (nombre común en tu estructura)
+        // 2. Verificar usuarios vinculados 
+        // IMPORTANTE: Se cambió a Departamentos_ID_Departamentos para coincidir con tu SQL
         const [usuarios] = await db.query(
-            'SELECT COUNT(*) as total FROM Usuarios WHERE Departamentos_id_Departamentos = ? AND Estatus_id_Estatus = 1', 
+            'SELECT COUNT(*) as total FROM Usuarios WHERE Departamentos_ID_Departamentos = ? AND Estatus_id_Estatus = 1', 
             [deptoId]
         );
 
@@ -79,7 +88,7 @@ router.put('/borrar-por-nombre', async (req, res) => {
             });
         }
 
-        // 3. Baja lógica
+        // 3. Baja lógica: Cambiar estatus a 2 (Inactivo)
         await db.query(
             'UPDATE Departamentos SET Estatus_id_Estatus = 2 WHERE ID_Departamentos = ?', 
             [deptoId]
@@ -88,7 +97,6 @@ router.put('/borrar-por-nombre', async (req, res) => {
         res.json({ success: true, message: "Departamento dado de baja correctamente" });
 
     } catch (error) {
-        // Si el error persiste, este mensaje te dirá qué columna te falta corregir
         res.status(500).json({ success: false, message: "Error en el servidor: " + error.message });
     }
 });

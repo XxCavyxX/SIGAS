@@ -1,6 +1,6 @@
 const API_URL = 'http://localhost:3000/api/deptos';
 
-// Configuración Toast para notificaciones en la esquina (Imagen 2)
+// Configuración Toast para notificaciones (Estilo institucional)
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnGuardar').addEventListener('click', guardarDepto);
 });
 
-// Función para cargar la tabla con estilos de la Imagen 3
+// 1. Cargar la tabla
 async function cargarDepartamentos() {
     try {
         const res = await fetch(`${API_URL}/listar`);
@@ -28,7 +28,7 @@ async function cargarDepartamentos() {
             data.departamentos.forEach(depto => {
                 const tr = document.createElement('tr');
                 
-                // Botones con clases para el CSS (Imagen 3)
+                // Usamos depto.Nombre para las funciones porque así están tus rutas de backend
                 tr.innerHTML = `
                     <td>${depto.Nombre}</td>
                     <td class="acciones-celda">
@@ -41,23 +41,22 @@ async function cargarDepartamentos() {
         }
     } catch (err) {
         console.error("Error al cargar:", err);
+        Toast.fire({ icon: 'error', title: 'No se pudo cargar la lista' });
     }
 }
 
-// Ventana emergente centrada para editar (Imagen 4)
+// 2. Modal para editar (Ajustado a colores guinda/oro)
 async function abrirModalEditar(nombreActual) {
     const { value: nuevoNombre } = await Swal.fire({
         title: 'Editar Departamento',
         input: 'text',
+        inputLabel: 'Nuevo nombre del departamento',
         inputValue: nombreActual,
         showCancelButton: true,
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        confirmButtonColor: '#6e54f3', // Color morado de tu imagen
+        confirmButtonText: 'Actualizar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#6a1b31', // Guinda ITS
         cancelButtonColor: '#6c757d',
-        customClass: {
-            input: 'swal2-input-custom'
-        },
         inputValidator: (value) => {
             if (!value) return '¡El nombre no puede estar vacío!';
         }
@@ -68,6 +67,7 @@ async function abrirModalEditar(nombreActual) {
     }
 }
 
+// 3. Ejecutar actualización en el servidor
 async function ejecutarActualizacion(nombreNuevo, nombreAnterior) {
     try {
         const res = await fetch(`${API_URL}/actualizar-por-nombre`, {
@@ -88,10 +88,14 @@ async function ejecutarActualizacion(nombreNuevo, nombreAnterior) {
     }
 }
 
-// Guardar nuevo
+// 4. Guardar nuevo departamento
 async function guardarDepto() {
-    const nombre = document.getElementById('nombreDepto').value.trim();
-    if (!nombre) return Toast.fire({ icon: 'warning', title: 'Ingresa un nombre' });
+    const inputNombre = document.getElementById('nombreDepto');
+    const nombre = inputNombre.value.trim();
+
+    if (!nombre) {
+        return Toast.fire({ icon: 'warning', title: 'Ingresa un nombre de departamento' });
+    }
 
     try {
         const res = await fetch(`${API_URL}/guardar`, {
@@ -103,7 +107,7 @@ async function guardarDepto() {
         
         if (data.success) {
             Toast.fire({ icon: 'success', title: data.message });
-            document.getElementById('nombreDepto').value = '';
+            inputNombre.value = ''; // Limpiar input
             cargarDepartamentos();
         } else {
             Toast.fire({ icon: 'error', title: data.message });
@@ -113,14 +117,14 @@ async function guardarDepto() {
     }
 }
 
-// Borrar con confirmación
+// 5. Borrar (Baja lógica) con validación
 async function eliminarDepto(nombre) {
     const resultado = await Swal.fire({
         title: `¿Dar de baja: ${nombre}?`,
-        text: "Se verificará que no existan usuarios vinculados a este departamento.",
+        text: "Si hay usuarios vinculados, la acción será rechazada.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#7b1e34', // Color guinda institucional
+        confirmButtonColor: '#6a1b31', // Guinda ITS
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Sí, dar de baja',
         cancelButtonText: 'Cancelar'
@@ -129,7 +133,7 @@ async function eliminarDepto(nombre) {
     if (resultado.isConfirmed) {
         try {
             const res = await fetch(`${API_URL}/borrar-por-nombre`, {
-                method: 'PUT', // Cambiado a PUT porque es una actualización de estatus
+                method: 'PUT', // Usamos PUT por ser actualización de estatus
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nombre })
             });
@@ -140,14 +144,16 @@ async function eliminarDepto(nombre) {
                 Toast.fire({ icon: 'success', title: data.message });
                 cargarDepartamentos();
             } else {
-                // Aquí se mostrará el error de "hay X usuarios asignados"
-                Toast.fire({ 
-                    icon: 'error', 
-                    title: data.message 
+                // Muestra el error si hay usuarios asignados (Error 400 del servidor)
+                Swal.fire({
+                    title: 'No se puede eliminar',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonColor: '#6a1b31'
                 });
             }
         } catch (err) {
-            Toast.fire({ icon: 'error', title: 'Error de conexión con el servidor' });
+            Toast.fire({ icon: 'error', title: 'Error al conectar con el servidor' });
         }
     }
 }

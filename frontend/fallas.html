@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAS - Registro de Fallas</title>
+    <link rel="stylesheet" href="assets/css/style_fallas.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+ 
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="header-institucional">
+    <div class="logos-container">
+        <img src="assets/IMG/Logo_TEC2.png"  alt="Logo ITS"   class="logo-img">
+        <h1>Instituto Tecnológico de Saltillo</h1>
+        <img src="assets/IMG/TecNM_logo.png" alt="Logo TecNM" class="logo-img">
+    </div>
+    <div class="banner-maroon">
+        <span><a href="menu.html" style="color:white;text-decoration:none;">Menú</a></span>
+        <span>Registro de Fallas</span>
+    </div>
+</header>
+ 
+<!-- ── FORM ────────────────────────────────────────────── -->
+<main class="container">
+    <section class="form-section">
+        <div class="grid-inputs">
+ 
+            <div class="field">
+                <label for="equipoFalla">Equipo *</label>
+                <select id="equipoFalla">
+                    <option value="">Seleccione un equipo...</option>
+                </select>
+            </div>
+ 
+            <div class="field">
+                <label for="fechaFalla">Fecha de Falla *</label>
+                <input type="date" id="fechaFalla">
+            </div>
+ 
+            <div class="field">
+                <label for="severidad">Severidad</label>
+                <select id="severidad">
+                    <option value="Baja">Baja</option>
+                    <option value="Media" selected>Media</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Critica">Crítica</option>
+                </select>
+            </div>
+ 
+            <div class="field">
+                <label for="estatusFalla">Estatus</label>
+                <select id="estatusFalla">
+                    <option value="Pendiente" selected>Pendiente</option>
+                    <option value="En proceso">En proceso</option>
+                    <option value="Resuelta">Resuelta</option>
+                </select>
+            </div>
+ 
+            <div class="field field-full">
+                <label for="descripcionFalla">Descripción de la Falla *</label>
+                <textarea id="descripcionFalla" placeholder="Describa la falla detectada..."></textarea>
+            </div>
+ 
+            <div class="field field-full" id="bloqueResolucion" style="display:none;">
+                <label for="notasResolucion">Notas de Resolución</label>
+                <textarea id="notasResolucion" placeholder="Describa la solución aplicada..."></textarea>
+            </div>
+ 
+            <div class="field" id="bloqueFechaResolucion" style="display:none;">
+                <label for="fechaResolucion">Fecha de Resolución</label>
+                <input type="date" id="fechaResolucion">
+            </div>
+ 
+        </div>
+ 
+        <!-- Botones -->
+        <div class="actions-container">
+            <button type="button" id="btnGuardar"    class="btn-action btn-guardar">Guardar</button>
+            <button type="button" id="btnActualizar" class="btn-action" disabled>Actualizar</button>
+            <button type="button" id="btnEliminar"   class="btn-action" disabled style="background:#dc3545;color:white;border-color:#dc3545;">Eliminar</button>
+            <button type="button" id="btnLimpiar"    class="btn-action">Nuevo</button>
+            <button type="button" id="btnPDF"        class="btn-action btn-pdf">Reporte PDF</button>
+        </div>
+    </section>
+ 
+    <!-- ── TABLA ──────────────────────────────────────────── -->
+    <section class="table-section">
+        <h2 class="table-title">Fallas Registradas</h2>
+        <div class="table-wrapper">
+            <table id="tablaFallas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>Ubicación</th>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Severidad</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+ 
+<!-- ── MODAL VISTA PREVIA PDF ─────────────────────────── -->
+<div class="modal-overlay" id="modalPDF">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span>Vista Previa — Reporte de Fallas</span>
+            <button onclick="cerrarModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalContenido"></div>
+        <div class="modal-footer">
+            <button class="btn-cerrar-modal" onclick="cerrarModal()">Cerrar</button>
+            <button class="btn-descargar"    onclick="descargarPDF()">⬇ Descargar PDF</button>
+        </div>
+    </div>
+</div>
+ 
+<script src="assets/js/gestionar_fallas.js"></script>
+</body>
+</html>
+ 

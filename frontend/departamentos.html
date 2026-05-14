@@ -16,7 +16,7 @@
         </div>
         <div class="banner-maroon">
             <span class="left">Menu</span>
-            <span class="right">Departamentos</span>
+            <span class="right">Gestión de Departamentos</span>
         </div>
     </header>
 
@@ -24,8 +24,8 @@
         <section class="form-section">
             <div class="input-group">
                 <div class="field">
-                    <label>Nombre de Departamento</label>
-                    <input type="text" id="nombreDepto" placeholder="Escribe el nombre...">
+                    <label for="nombreDepto">Nombre del Departamento</label>
+                    <input type="text" id="nombreDepto" placeholder="Eje: Ingeniería en Sistemas">
                 </div>
                 
                 <div class="button-column">
@@ -35,15 +35,15 @@
         </section>
 
         <section class="table-section">
-            <h2 class="table-title">Departamentos</h2>
+            <h2 class="table-title">Departamentos Registrados</h2>
             <div class="table-wrapper">
                 <table id="tabla-departamentos">
                     <thead>
                         <tr>
                             <th>Nombre del Departamento</th>
-                            <th style="width: 200px;">Acciones</th>
+                            <th style="width: 250px; text-align: center;">Acciones</th>
                         </tr>
-                        </thead>
+                    </thead>
                     <tbody>
                         </tbody>
                 </table>
@@ -51,7 +51,8 @@
         </section>
     </main>
 
+    <div id="toast-container"></div>
+
     <script src="assets/js/gestionar_departamentos.js"></script>
-    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;"></div>
 </body>
 </html>

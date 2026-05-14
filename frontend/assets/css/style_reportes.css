@@ -1,0 +1,216 @@
+/* ============================================================
+   SIGAS — Estilos para Reportes
+   Fix: modal activo, badges, tabla preview
+   ============================================================ */
+:root {
+    --maroon: #6a1b31;
+    --gold:   #bc955c;
+    --light-bg: #f4f4f4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-bg);
+    margin: 0;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.header-institucional {
+    background-color: white;
+    border-bottom: 3px solid var(--gold);
+}
+.logos-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 50px;
+}
+.logo-img { height: 70px; object-fit: contain; }
+.banner-maroon {
+    background-color: var(--maroon);
+    color: white;
+    padding: 10px 50px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.banner-maroon a { color: white; text-decoration: none; }
+
+/* ── CONTAINER / GRID ───────────────────────────────────── */
+.container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+.seccion-titulo {
+    color: var(--maroon);
+    border-bottom: 3px solid var(--gold);
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+.reportes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.reporte-card {
+    background: white;
+    padding: 28px 22px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: transform 0.25s, box-shadow 0.25s;
+    border-top: 4px solid var(--maroon);
+}
+.reporte-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(106,27,49,.18); }
+.reporte-card .icono { font-size: 2.6rem; margin-bottom: 12px; }
+.reporte-card h3 { color: var(--maroon); margin: 0 0 8px; font-size: 1rem; }
+.reporte-card p  { font-size: .82rem; color: #666; margin-bottom: 16px; }
+
+.btn-ver-reporte {
+    background-color: var(--maroon);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: .85rem;
+    transition: background .2s;
+}
+.btn-ver-reporte:hover { background: #4d1022; }
+
+/* ── MODAL ───────────────────────────────────────────────── */
+/* CRÍTICO: display:none por defecto, display:flex cuando tiene .activo */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.65);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-overlay.activo {
+    display: flex;   /* ← FIX CRÍTICO: flex en lugar de block */
+}
+
+.modal-box {
+    background: white;
+    width: 90%;
+    max-width: 920px;
+    max-height: 85vh;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0,0,0,.3);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: var(--maroon);
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.modal-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btn-descargar {
+    background: var(--maroon);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: .9rem;
+    transition: background .2s;
+}
+.btn-descargar:hover { background: #4d1022; }
+
+.btn-cerrar-modal {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: .9rem;
+}
+
+/* ── TABLA PREVIEW ────────────────────────────────────────── */
+.preview-titulo {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: var(--maroon);
+    margin: 0 0 4px;
+}
+.preview-meta {
+    font-size: .78rem;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+table th {
+    background: var(--maroon);
+    color: white;
+    padding: 9px 10px;
+    text-align: left;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+}
+table td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+table tr:hover { background: #f9f9f9; }
+
+/* ── BADGES ──────────────────────────────────────────────── */
+.badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: .72rem;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+}
+.badge-Activo    { background: #28a745; }
+.badge-Inactivo  { background: #6c757d; }
+.badge-Baja      { background: #17a2b8; }
+.badge-Media     { background: #ffc107; color: #333; }
+.badge-Alta      { background: #dc3545; }
+.badge-Critica   { background: #6f42c1; }
+.badge-Pendiente { background: #ffc107; color: #333; }
+.badge-En-proceso { background: #17a2b8; }
+.badge-Resuelta  { background: #28a745; }

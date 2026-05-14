@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGAS - Gestión de Roles</title>
     <link rel="stylesheet" href="assets/css/style_roles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <header class="header-institucional">
@@ -33,22 +34,19 @@
         <section class="table-section">
             <h2 class="table-title">Roles Registrados</h2>
             <div class="table-wrapper">
-               <table id="tablaRoles">
-    <thead>
-        <tr>
-            <th>Nombre del Rol</th>
-            <th style="text-align: right;">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Se llena con JS -->
-    </tbody>
-</table>
+                <table id="tablaRoles">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Rol</th>
+                            <th style="text-align: right; padding-right: 20px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="assets/js/gestionar_roles.js"></script>
+    <script src="assets/js/gestionar_roles.js"></script>
 </body>
 </html>

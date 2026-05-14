@@ -15,38 +15,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function cargarRoles() {
     try {
-        const respuesta = await fetch(`${API_URL}/listar`);
-        const data = await respuesta.json();
-        const tablaBody = document.querySelector('#tablaRoles tbody');
-        
-        if (!tablaBody) return;
-        tablaBody.innerHTML = ''; 
+        const res = await fetch(`${API_URL}/listar`);
+        const data = await res.json();
+        const tbody = document.querySelector('#tablaRoles tbody');
+        if (!tbody) return;
+        tbody.innerHTML = ''; 
 
         if (data.success && data.roles) {
             data.roles.forEach(rol => {
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>${rol.Nombre}</td>
-                    <td style="text-align: right;">
+                    <td style="text-align: right; padding-right: 20px;">
                         <button class="btn-edit" onclick="editarRol(${rol.ID_roles}, '${rol.Nombre}')">Editar</button>
                         <button class="btn-delete" onclick="eliminarRol(${rol.ID_roles}, '${rol.Nombre}')">Borrar</button>
                     </td>
                 `;
-                tablaBody.appendChild(fila);
+                tbody.appendChild(tr);
             });
         }
-    } catch (error) {
-        console.error("Error al cargar roles:", error);
-    }
+    } catch (err) { console.error("Error al cargar:", err); }
 }
 
 async function guardarRol() {
-    const nombreInput = document.getElementById('nombreRol');
-    const nombre = nombreInput.value.trim();
-
-    if (!nombre) {
-        return Toast.fire({ icon: 'warning', title: 'Por favor, escribe un nombre de rol' });
-    }
+    const input = document.getElementById('nombreRol');
+    const nombre = input.value.trim();
+    if (!nombre) return Toast.fire({ icon: 'warning', title: 'Ingresa un nombre de rol' });
 
     try {
         const res = await fetch(`${API_URL}/crear`, {
@@ -54,22 +48,15 @@ async function guardarRol() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre })
         });
-
         const data = await res.json();
-
         if (data.success) {
             Toast.fire({ icon: 'success', title: data.message });
-            nombreInput.value = ''; 
-            cargarRoles(); 
+            input.value = '';
+            cargarRoles();
         } else {
-            Toast.fire({
-                icon: 'error',
-                title: data.message
-            });
+            Toast.fire({ icon: 'error', title: data.message });
         }
-    } catch (err) {
-        Toast.fire({ icon: 'error', title: 'Error de conexión con el servidor' });
-    }
+    } catch (err) { Toast.fire({ icon: 'error', title: 'Error de conexión' }); }
 }
 
 async function editarRol(id, nombreActual) {
@@ -78,13 +65,10 @@ async function editarRol(id, nombreActual) {
         input: 'text',
         inputValue: nombreActual,
         showCancelButton: true,
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        confirmButtonColor: '#6e54f3', 
+        confirmButtonText: 'Actualizar',
+        confirmButtonColor: '#6a1b31',
         cancelButtonColor: '#6c757d',
-        customClass: {
-            input: 'swal2-input-centrado'
-        }
+        inputValidator: (value) => { if (!value) return 'El nombre es obligatorio'; }
     });
 
     if (nuevoNombre && nuevoNombre !== nombreActual) {
@@ -95,50 +79,35 @@ async function editarRol(id, nombreActual) {
                 body: JSON.stringify({ nombre: nuevoNombre })
             });
             const data = await res.json();
-            
             if (data.success) {
                 Toast.fire({ icon: 'success', title: data.message });
                 cargarRoles();
-            } else {
-                Toast.fire({ icon: 'error', title: data.message });
             }
-        } catch (error) {
-            Toast.fire({ icon: 'error', title: 'Error al actualizar' });
-        }
+        } catch (err) { Toast.fire({ icon: 'error', title: 'Error al actualizar' }); }
     }
 }
 
-// Función actualizada para Baja Lógica
 async function eliminarRol(id, nombre) {
-    const confirmacion = await Swal.fire({
-        title: `¿Dar de baja el rol: ${nombre}?`,
+    const result = await Swal.fire({
+        title: `¿Dar de baja: ${nombre}?`,
         text: "Se verificará que no existan usuarios vinculados.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#7b1e34',
+        confirmButtonColor: '#6a1b31',
         cancelButtonColor: '#6c757d'
     });
 
-    if (confirmacion.isConfirmed) {
+    if (result.isConfirmed) {
         try {
             const res = await fetch(`${API_URL}/eliminar/${id}`, { method: 'DELETE' });
             const data = await res.json();
-
             if (data.success) {
                 Toast.fire({ icon: 'success', title: data.message });
                 cargarRoles();
             } else {
-                // Aquí se mostrará: "No se puede dar de baja: hay X usuario(s) activos..."
-                // Usando el estilo de la imagen que proporcionaste
-                Toast.fire({ 
-                    icon: 'error', 
-                    title: data.message 
-                });
+                Swal.fire({ title: 'No se puede eliminar', text: data.message, icon: 'error', confirmButtonColor: '#6a1b31' });
             }
-        } catch (error) {
-            Toast.fire({ icon: 'error', title: 'Error de comunicación con el servidor' });
-        }
+        } catch (err) { Toast.fire({ icon: 'error', title: 'Error de servidor' }); }
     }
 }

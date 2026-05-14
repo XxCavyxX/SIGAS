@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAS - Reportes</title>
+    <link rel="stylesheet" href="assets/css/style_reportes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+ 
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="header-institucional">
+    <div class="logos-container">
+        <img src="assets/IMG/Logo_TEC2.png"  alt="Logo ITS"   class="logo-img">
+        <h1>Instituto Tecnológico de Saltillo</h1>
+        <img src="assets/IMG/TecNM_logo.png" alt="Logo TecNM" class="logo-img">
+    </div>
+    <div class="banner-maroon">
+        <span><a href="menu.html" style="color:white;text-decoration:none;">Menú</a></span>
+        <span>Reportes</span>
+    </div>
+</header>
+ 
+<!-- ── MAIN ────────────────────────────────────────────── -->
+<main class="container">
+    <h2 class="seccion-titulo">Generación de Reportes</h2>
+ 
+    <div class="reportes-grid">
+ 
+        <div class="reporte-card">
+            <div class="icono">📋</div>
+            <h3>Inventario Total</h3>
+            <p>Todos los equipos registrados con su estado y componentes.</p>
+            <button class="btn-ver-reporte" onclick="verReporte('inventario-total')">Ver Reporte</button>
+        </div>
+ 
+        <div class="reporte-card">
+            <div class="icono">⚠️</div>
+            <h3>Fallas de Equipo</h3>
+            <p>Historial completo de fallas por equipo y severidad.</p>
+            <button class="btn-ver-reporte" onclick="verReporte('fallas-equipo')">Ver Reporte</button>
+        </div>
+ 
+        <div class="reporte-card">
+            <div class="icono">🔄</div>
+            <h3>Movimientos</h3>
+            <p>Altas, bajas y traslados registrados en el sistema.</p>
+            <button class="btn-ver-reporte" onclick="verReporte('movimientos')">Ver Reporte</button>
+        </div>
+ 
+        <div class="reporte-card">
+            <div class="icono">🚫</div>
+            <h3>Equipos Inactivos</h3>
+            <p>Equipos dados de baja con motivo y fecha de salida.</p>
+            <button class="btn-ver-reporte" onclick="verReporte('equipos-inactivos')">Ver Reporte</button>
+        </div>
+ 
+        <div class="reporte-card">
+            <div class="icono">📊</div>
+            <h3>Estado Actual</h3>
+            <p>Resumen operativo de equipos activos con conteo de fallas.</p>
+            <button class="btn-ver-reporte" onclick="verReporte('estado-actual')">Ver Reporte</button>
+        </div>
+ 
+    </div>
+</main>
+ 
+<!-- ── MODAL VISTA PREVIA ───────────────────────────────── -->
+<div class="modal-overlay" id="modalReporte">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span id="modalTitulo">Vista Previa</span>
+            <button onclick="cerrarModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="preview-contenido">
+                <p style="text-align:center;padding:30px;color:#999;">Cargando datos...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cerrar-modal" onclick="cerrarModal()">Cerrar</button>
+            <button class="btn-descargar"    id="btnDescargar" onclick="descargarActual()">⬇ Descargar PDF</button>
+        </div>
+    </div>
+</div>
+ 
+<script src="assets/js/gestionar_reportes.js"></script>
+</body>
+</html>
+ 
