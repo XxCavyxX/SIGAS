@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-
+ 
 <body>
     <div class="login-container">
         <div class="login-box">
@@ -18,85 +18,294 @@
                 <h1>SIGAS</h1>
                 <p>Sistema de Gestión de Activos</p>
             </div>
-
-            <form id="loginForm">
+ 
+            <!--
+                IMPORTANTE: type="text" en el correo (NO type="email")
+                Razón: type="email" activa la validación nativa del navegador
+                que muestra sus propios mensajes en inglés/español del sistema
+                y bloquea el submit ANTES de que llegue a nuestro JS,
+                impidiendo mostrar los mensajes del PDF con SweetAlert2.
+            -->
+            <form id="loginForm" novalidate>
                 <div class="input-group">
                     <label for="correo">Correo Institucional</label>
-                    <!-- Cambiado ID a "correo" para coincidir con el JS -->
-                    <input type="email" id="correo" name="correo" placeholder="usuario@saltillo.tecnm.mx" required>
+                    <input
+                        type="text"
+                        id="correo"
+                        name="correo"
+                        placeholder="usuario@saltillo.tecnm.mx"
+                        autocomplete="email"
+                    >
                 </div>
-
+ 
                 <div class="input-group">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="pass" placeholder="••••••••" required>
+                    <input
+                        type="password"
+                        id="password"
+                        name="pass"
+                        placeholder="••••••••"
+                        autocomplete="current-password"
+                    >
                 </div>
-
+ 
                 <button type="submit" class="btn-login">Entrar al Sistema</button>
             </form>
-
+ 
             <div class="footer">
                 <span>TecNM - Instituto Tecnológico de Saltillo</span>
             </div>
         </div>
     </div>
-
+ 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        
-        const ToastError = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // Capturamos el valor del correo
-            const correo = document.getElementById('correo').value;
-            const passInput = document.getElementById('password');
-            const pass = passInput.value;
-
-            try {
-                const response = await fetch('http://localhost:3000/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // Enviamos "correo" en lugar de "nombre"
-                    body: JSON.stringify({ correo, pass })
-                });
-
-                const contentType = response.headers.get("content-type");
-                
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    const result = await response.json();
-
-                    if (result.success) {
-                        localStorage.setItem('userRole', result.user.Roles_ID_roles);
-                        localStorage.setItem('userCorreo', result.user.Correo);
-                        localStorage.setItem('showWelcome', 'true');
-
-                        window.location.href = "menu.html"; 
-                    } else {
-                        ToastError.fire({
-                            icon: 'error',
-                            title: result.message || 'Contraseña o correo incorrectos'
-                        });
-                        passInput.value = ""; // Borrar solo contraseña
-                    }
-                } else {
-                    console.error("El servidor no respondió con JSON");
-                }
-
-            } catch (error) {
-                console.error("Error al conectar:", error);
-                ToastError.fire({
-                    icon: 'error',
-                    title: 'No hay conexión con el servidor'
-                });
+    // ═══════════════════════════════════════════════════════════════
+    //  SIGAS — Validación de Login
+    //  Cubre todos los escenarios de la Matriz de Pruebas (PDF)
+    // ═══════════════════════════════════════════════════════════════
+ 
+    const loginForm   = document.getElementById('loginForm');
+    const correoInput = document.getElementById('correo');
+    const passInput   = document.getElementById('password');
+ 
+    // ── Configuración base de SweetAlert2 (modal grande, centrado) ──
+    // Se usa Swal.fire() directamente para que aparezca como un cuadro
+    // grande en el centro de la pantalla, NO como toast pequeño.
+    function mostrarError(titulo, texto) {
+        return Swal.fire({
+            icon: 'error',
+            title: titulo,
+            text: texto || '',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#6a1b31',
+            allowOutsideClick: true,
+            customClass: {
+                popup:   'swal-popup-grande',
+                title:   'swal-titulo',
+                htmlContainer: 'swal-texto'
             }
         });
+    }
+ 
+    function mostrarAdvertencia(titulo, texto) {
+        return Swal.fire({
+            icon: 'warning',
+            title: titulo,
+            text: texto || '',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#6a1b31',
+            allowOutsideClick: true,
+            customClass: {
+                popup:   'swal-popup-grande',
+                title:   'swal-titulo',
+                htmlContainer: 'swal-texto'
+            }
+        });
+    }
+ 
+    // ── Estilos para el modal grande ────────────────────────────────
+    const estiloModal = document.createElement('style');
+    estiloModal.textContent = `
+        .swal-popup-grande {
+            width: 480px !important;
+            padding: 40px 30px !important;
+            border-radius: 16px !important;
+        }
+        .swal-titulo {
+            font-size: 1.4rem !important;
+            font-weight: 700 !important;
+            color: #333 !important;
+            line-height: 1.4 !important;
+        }
+        .swal-texto {
+            font-size: 1rem !important;
+            color: #555 !important;
+            margin-top: 8px !important;
+        }
+        .swal2-icon {
+            width: 72px !important;
+            height: 72px !important;
+        }
+        .swal2-confirm {
+            padding: 10px 32px !important;
+            font-size: 0.95rem !important;
+            border-radius: 8px !important;
+        }
+    `;
+    document.head.appendChild(estiloModal);
+ 
+    // ── Validador de formato de correo ──────────────────────────────
+    // Retorna { valido: true } o { valido: false, titulo, texto }
+    // Cubre TODOS los escenarios del PDF relacionados con el correo.
+    function validarFormatoCorreo(correo) {
+ 
+        // ESCENARIO: "No incluir @ en el correo"
+        // Resultado esperado: "Incluye un signo de @ en la dirección..."
+        if (!correo.includes('@')) {
+            return {
+                valido: false,
+                titulo: 'Correo sin @',
+                texto:  `Incluye un signo de @ en la dirección de correo electrónico. La dirección "${correo}" no incluye el signo de "@"`
+            };
+        }
+ 
+        // Separar en parte local (antes del @) y dominio (después del @)
+        // Usamos indexOf para manejar correctamente correos con más de un @
+        const posArroba = correo.indexOf('@');
+        const local     = correo.substring(0, posArroba);      // antes del @
+        const dominio   = correo.substring(posArroba + 1);     // después del @
+ 
+        // ESCENARIO: "Caracteres inválidos antes del @"
+        // Permitidos: letras (a-z A-Z), números (0-9), punto (.), guión (-), guión bajo (_)
+        // Resultado esperado: correo no aceptado
+        if (local.length === 0) {
+            return {
+                valido: false,
+                titulo: 'Correo no aceptado',
+                texto:  'La parte antes del @ no puede estar vacía.'
+            };
+        }
+        const regexLocal = /^[a-zA-Z0-9._\-]+$/;
+        if (!regexLocal.test(local)) {
+            return {
+                valido: false,
+                titulo: 'Correo no aceptado',
+                texto:  'Caracteres inválidos antes del @. Solo se permiten letras, números, puntos, guiones y guiones bajos.'
+            };
+        }
+ 
+        // ESCENARIO: "Campos inválidos después del @"
+        // Permitidos: letras, números, puntos y guiones. Debe tener al menos un punto y extensión válida.
+        // Resultado esperado: "Caracteres inválidos después del @"
+        if (dominio.length === 0) {
+            return {
+                valido: false,
+                titulo: 'Caracteres inválidos después del @',
+                texto:  'La parte del dominio no puede estar vacía.'
+            };
+        }
+        const regexDominio = /^[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+        if (!regexDominio.test(dominio)) {
+            return {
+                valido: false,
+                titulo: 'Caracteres inválidos después del @',
+                texto:  `El dominio "${dominio}" contiene caracteres no permitidos o no tiene un formato válido (ej: saltillo.tecnm.mx).`
+            };
+        }
+ 
+        // ESCENARIO: "Caracteres válidos antes del @" y "Caracteres válidos después del @"
+        // → Correo aceptado, no se muestra ningún mensaje de error
+        return { valido: true };
+    }
+ 
+    // ── Listener principal del formulario ───────────────────────────
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Siempre prevenir el submit nativo
+ 
+        const correo = correoInput.value.trim();
+        const pass   = passInput.value; // NO hacer trim a contraseñas
+ 
+        // ─────────────────────────────────────────────────────────────
+        // ESCENARIO: "Campo vacío" — correo Y contraseña vacíos
+        // Resultado esperado: "Completa este campo"
+        // ─────────────────────────────────────────────────────────────
+        if (!correo && !pass) {
+            await mostrarAdvertencia('Completa este campo', 'Debes ingresar tu correo y contraseña para continuar.');
+            correoInput.focus();
+            return;
+        }
+ 
+        // ─────────────────────────────────────────────────────────────
+        // ESCENARIO: solo correo vacío
+        // Resultado esperado: "Completa este campo"
+        // ─────────────────────────────────────────────────────────────
+        if (!correo) {
+            await mostrarAdvertencia('Completa este campo', 'El campo de correo institucional es obligatorio.');
+            correoInput.focus();
+            return;
+        }
+ 
+        // ─────────────────────────────────────────────────────────────
+        // ESCENARIO: "Contraseña vacía"
+        // Resultado esperado: "Completar este campo"
+        // ─────────────────────────────────────────────────────────────
+        if (!pass) {
+            await mostrarAdvertencia('Completar este campo', 'El campo de contraseña es obligatorio.');
+            passInput.focus();
+            return;
+        }
+ 
+        // ─────────────────────────────────────────────────────────────
+        // ESCENARIOS DE FORMATO DE CORREO
+        // (sin @, caracteres inválidos antes/después del @)
+        // ─────────────────────────────────────────────────────────────
+        const validacion = validarFormatoCorreo(correo);
+        if (!validacion.valido) {
+            await mostrarError(validacion.titulo, validacion.texto);
+            correoInput.select();
+            correoInput.focus();
+            return;
+        }
+ 
+        // ─────────────────────────────────────────────────────────────
+        // FETCH AL BACKEND
+        // Escenarios que maneja el servidor:
+        //   - Correo no registrado  → message: "Credenciales invalidas."
+        //   - Contraseña incorrecta → message: "Credenciales invalidas." + borra contraseña
+        //   - Credenciales correctas → redirige a menu.html
+        // ─────────────────────────────────────────────────────────────
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo, pass })
+            });
+ 
+            const contentType = response.headers.get('content-type');
+ 
+            if (contentType && contentType.includes('application/json')) {
+                const result = await response.json();
+ 
+                // ─────────────────────────────────────────────────────
+                // ESCENARIO: "Credenciales correctas"
+                // Resultado esperado: entrar al sistema
+                // ─────────────────────────────────────────────────────
+                if (result.success) {
+                    localStorage.setItem('userRole',    result.user.Roles_ID_roles);
+                    localStorage.setItem('userCorreo',  result.user.Correo);
+                    localStorage.setItem('showWelcome', 'true');
+                    window.location.href = 'menu.html';
+ 
+                } else {
+                    // ─────────────────────────────────────────────────
+                    // ESCENARIO: "Correo no registrado" O "Contraseña incorrecta"
+                    // Resultado esperado: "Credenciales invalidas" + borrar contraseña
+                    // ─────────────────────────────────────────────────
+                    await mostrarError(
+                        'Credenciales inválidas',
+                        result.message || 'El correo o la contraseña no son correctos. Verifica tus datos e intenta de nuevo.'
+                    );
+                    passInput.value = ''; // Borrar SOLO la contraseña
+                    passInput.focus();
+                }
+ 
+            } else {
+                // El servidor respondió pero no con JSON
+                await mostrarError(
+                    'Error del servidor',
+                    'El servidor no respondió correctamente. Intenta más tarde.'
+                );
+            }
+ 
+        } catch (error) {
+            // Sin conexión al servidor (backend apagado, red caída, etc.)
+            console.error('Error de conexión:', error);
+            await mostrarError(
+                'Sin conexión',
+                'No se pudo conectar con el servidor. Verifica que el servidor esté activo e intenta de nuevo.'
+            );
+        }
+    });
     </script>
 </body>
 </html>

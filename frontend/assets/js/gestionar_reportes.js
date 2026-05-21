@@ -1,12 +1,16 @@
 /* ============================================================
    SIGAS — Sistema de Reportes
    Conecta con /api/reportes
-   FIX: Vista previa funcional, PDF correcto, sin errores undefined
+   ACTUALIZADO: Filtro de fechas funcional + descarga filtrada
    ============================================================ */
 
 const API_REPORTES = 'http://localhost:3000/api/reportes';
 
-let reporteActual = null;  // { tipo, titulo, data }
+// reporteActual → guarda TODO lo que devolvió el servidor (sin filtrar)
+let reporteActual = null;  // { tipo, titulo, data[] }
+
+// datosVisibles → guarda lo que se está mostrando ahora (puede ser filtrado)
+let datosVisibles = null;  // { tipo, titulo, rows[] }
 
 const TITULOS = {
     'inventario-total':  'Inventario Total de Equipos',
@@ -40,8 +44,13 @@ async function verReporte(tipo) {
         '<p style="text-align:center;padding:40px;color:#999;">⏳ Cargando datos del servidor...</p>';
     document.getElementById('modalReporte').classList.add('activo');
 
+    // Limpiar filtro de fechas al abrir un reporte nuevo
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value    = '';
+    document.getElementById('contadorRegistros').textContent = '';
+
     try {
-        const res  = await fetch(`${API_REPORTES}/${tipo}`);
+        const res = await fetch(`${API_REPORTES}/${tipo}`);
 
         if (!res.ok) {
             throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -61,13 +70,141 @@ async function verReporte(tipo) {
             return;
         }
 
+        // Guardar datos completos del servidor
         reporteActual = { tipo, titulo, data: data.data };
+
+        // Al inicio, los datos visibles son todos (sin filtro)
+        datosVisibles = { tipo, titulo, rows: data.data };
+
+        // Mostrar contador total
+        document.getElementById('contadorRegistros').textContent = `${data.data.length} registro(s)`;
+
+        // Renderizar tabla
         document.getElementById('preview-contenido').innerHTML = construirTabla(tipo, data.data);
 
     } catch (err) {
         document.getElementById('preview-contenido').innerHTML =
             `<p style="text-align:center;padding:30px;color:#c00;">❌ Error al cargar: ${err.message}</p>`;
         console.error('Error en verReporte:', err);
+    }
+}
+
+// ──────────────────────────────────────────────────────────────
+// FILTRO DE FECHAS
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * Devuelve el campo de fecha relevante de cada fila según el tipo de reporte.
+ * Es la columna que se usa para comparar contra el rango Inicio–Fin.
+ */
+function campoFecha(tipo, row) {
+    switch (tipo) {
+        case 'inventario-total':  return row.Fecha_Entrada;
+        case 'fallas-equipo':     return row.Fecha_falla;
+        case 'movimientos':       return row.Fecha_Movimiento;
+        case 'equipos-inactivos': return row.Fecha_Salida || row.Fecha_Entrada;
+        case 'estado-actual':     return row.Fecha_Entrada;
+        default:                  return null;
+    }
+}
+
+/**
+ * Filtra la tabla según las fechas ingresadas y actualiza la vista previa.
+ * Si ambos inputs están vacíos, muestra todos los registros (igual que limpiar).
+ */
+function aplicarFiltro() {
+    if (!reporteActual) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Primero carga un reporte',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        return;
+    }
+
+    const valInicio = document.getElementById('fechaInicio').value;  // 'YYYY-MM-DD' o ''
+    const valFin    = document.getElementById('fechaFin').value;
+
+    // Si ambos vacíos → mostrar todo
+    if (!valInicio && !valFin) {
+        limpiarFiltro();
+        return;
+    }
+
+    // Convertir a Date (inicio: inicio del día / fin: fin del día)
+    const inicio = valInicio ? new Date(valInicio + 'T00:00:00') : null;
+    const fin    = valFin    ? new Date(valFin    + 'T23:59:59') : null;
+
+    // Validar que inicio no sea mayor que fin
+    if (inicio && fin && inicio > fin) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Rango de fechas inválido',
+            text: 'La fecha de inicio debe ser anterior o igual a la fecha fin.',
+            confirmButtonColor: '#6a1b31'
+        });
+        return;
+    }
+
+    // Filtrar filas
+    const rowsFiltradas = reporteActual.data.filter(row => {
+        const valorFecha = campoFecha(reporteActual.tipo, row);
+        if (!valorFecha) return false;          // sin fecha → excluir
+
+        const fecha = new Date(valorFecha);
+        if (isNaN(fecha.getTime())) return false;
+
+        if (inicio && fecha < inicio) return false;
+        if (fin    && fecha > fin)    return false;
+        return true;
+    });
+
+    // Actualizar datosVisibles con el resultado filtrado
+    datosVisibles = {
+        tipo:   reporteActual.tipo,
+        titulo: reporteActual.titulo,
+        rows:   rowsFiltradas
+    };
+
+    // Actualizar contador
+    const counter = document.getElementById('contadorRegistros');
+    counter.textContent = `${rowsFiltradas.length} de ${reporteActual.data.length} registro(s)`;
+    counter.style.color = rowsFiltradas.length === 0 ? '#c00' : '#555';
+
+    // Renderizar tabla filtrada (o mensaje vacío)
+    if (rowsFiltradas.length === 0) {
+        document.getElementById('preview-contenido').innerHTML =
+            '<p class="msg-empty">📭 No hay registros en el rango de fechas seleccionado.</p>';
+    } else {
+        document.getElementById('preview-contenido').innerHTML =
+            construirTabla(reporteActual.tipo, rowsFiltradas);
+    }
+}
+
+/**
+ * Limpia los inputs de fecha y restaura la tabla con todos los registros originales.
+ */
+function limpiarFiltro() {
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value    = '';
+
+    const counter = document.getElementById('contadorRegistros');
+
+    if (reporteActual) {
+        // Volver a mostrar todos los datos sin filtro
+        datosVisibles = {
+            tipo:   reporteActual.tipo,
+            titulo: reporteActual.titulo,
+            rows:   reporteActual.data
+        };
+        counter.textContent = `${reporteActual.data.length} registro(s)`;
+        counter.style.color = '#555';
+        document.getElementById('preview-contenido').innerHTML =
+            construirTabla(reporteActual.tipo, reporteActual.data);
+    } else {
+        datosVisibles = null;
+        counter.textContent = '';
     }
 }
 
@@ -188,14 +325,23 @@ function construirTabla(tipo, rows) {
 }
 
 // ──────────────────────────────────────────────────────────────
-// DESCARGAR PDF
+// DESCARGAR PDF — usa datosVisibles (respeta el filtro activo)
 // ──────────────────────────────────────────────────────────────
 function descargarActual() {
-    if (!reporteActual) {
-        alert('No hay datos cargados para exportar.');
+    // Usar datosVisibles en lugar de reporteActual.data
+    // → si hay filtro activo, descarga solo los registros filtrados
+    if (!datosVisibles || datosVisibles.rows.length === 0) {
+        Swal.fire({
+            icon: 'info',
+            title: 'No hay datos para exportar',
+            text: 'Carga un reporte o ajusta el filtro de fechas.',
+            timer: 2500,
+            showConfirmButton: false
+        });
         return;
     }
-    const { tipo, titulo, data } = reporteActual;
+
+    const { tipo, titulo, rows: data } = datosVisibles;
     const { jsPDF } = window.jspdf;
     const doc   = new jsPDF('l', 'pt', 'a4');
     const ahora = new Date().toLocaleDateString('es-MX');
@@ -288,4 +434,5 @@ function descargarActual() {
 function cerrarModal() {
     document.getElementById('modalReporte').classList.remove('activo');
     reporteActual = null;
+    datosVisibles = null;
 }
