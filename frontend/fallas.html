@@ -1,172 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIGAS - Login TecNM</title>
-    <link rel="stylesheet" href="assets/CSS/style.css">
+    <title>SIGAS - Registro de Fallas</title>
+    <link rel="stylesheet" href="assets/css/style_fallas.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
-
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <div class="header">
-                <img src="assets/IMG/Logo_TEC2.png" alt="Logo TecNM" class="logo">
-                <h1>SIGAS</h1>
-                <p>Sistema de Gestión de Activos</p>
+ 
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="header-institucional">
+    <div class="logos-container">
+        <img src="assets/IMG/Logo_TEC2.png"  alt="Logo ITS"   class="logo-img">
+        <h1>Instituto Tecnológico de Saltillo</h1>
+        <img src="assets/IMG/TecNM_logo.png" alt="Logo TecNM" class="logo-img">
+    </div>
+    <div class="banner-maroon">
+        <span><a href="menu.html" style="color:white;text-decoration:none;">Menú</a></span>
+        <span>Registro de Fallas</span>
+    </div>
+</header>
+ 
+<!-- ── FORM ────────────────────────────────────────────── -->
+<main class="container">
+    <section class="form-section">
+        <div class="grid-inputs">
+ 
+            <div class="field">
+                <label for="equipoFalla">Equipo *</label>
+                <select id="equipoFalla">
+                    <option value="">Seleccione un equipo...</option>
+                </select>
             </div>
-
-            <form id="loginForm">
-                <div class="input-group">
-                    <label for="correo">Correo Institucional</label>
-                    <input type="text" id="correo" name="correo" placeholder="usuario@saltillo.tecnm.mx">
-                </div>
-
-                <div class="input-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="pass" placeholder="••••••••">
-                </div>
-
-                <button type="submit" class="btn-login">Entrar al Sistema</button>
-            </form>
-
-            <div class="footer">
-                <span>TecNM - Instituto Tecnológico de Saltillo</span>
+ 
+            <div class="field">
+                <label for="fechaFalla">Fecha de Falla *</label>
+                <input type="date" id="fechaFalla">
             </div>
+ 
+            <div class="field">
+                <label for="severidad">Severidad</label>
+                <select id="severidad">
+                    <option value="Baja">Baja</option>
+                    <option value="Media" selected>Media</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Critica">Crítica</option>
+                </select>
+            </div>
+ 
+            <div class="field">
+                <label for="estatusFalla">Estatus</label>
+                <select id="estatusFalla">
+                    <option value="Pendiente" selected>Pendiente</option>
+                    <option value="En proceso">En proceso</option>
+                    <option value="Resuelta">Resuelta</option>
+                </select>
+            </div>
+ 
+            <div class="field field-full">
+                <label for="descripcionFalla">Descripción de la Falla *</label>
+                <textarea id="descripcionFalla" placeholder="Describa la falla detectada..."></textarea>
+            </div>
+ 
+            <div class="field field-full" id="bloqueResolucion" style="display:none;">
+                <label for="notasResolucion">Notas de Resolución</label>
+                <textarea id="notasResolucion" placeholder="Describa la solución aplicada..."></textarea>
+            </div>
+ 
+            <div class="field" id="bloqueFechaResolucion" style="display:none;">
+                <label for="fechaResolucion">Fecha de Resolución</label>
+                <input type="date" id="fechaResolucion">
+            </div>
+ 
+        </div>
+ 
+        <!-- Botones -->
+        <div class="actions-container">
+            <button type="button" id="btnGuardar"    class="btn-action btn-guardar">Guardar</button>
+            <button type="button" id="btnActualizar" class="btn-action" disabled>Actualizar</button>
+            <button type="button" id="btnEliminar"   class="btn-action" disabled style="background:#dc3545;color:white;border-color:#dc3545;">Eliminar</button>
+            <button type="button" id="btnLimpiar"    class="btn-action">Nuevo</button>
+            <button type="button" id="btnPDF"        class="btn-action btn-pdf">Reporte PDF</button>
+        </div>
+    </section>
+ 
+    <!-- ── TABLA ──────────────────────────────────────────── -->
+    <section class="table-section">
+        <h2 class="table-title">Fallas Registradas</h2>
+        <div class="table-wrapper">
+            <table id="tablaFallas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>Ubicación</th>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Severidad</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+ 
+<!-- ── MODAL VISTA PREVIA PDF ─────────────────────────── -->
+<div class="modal-overlay" id="modalPDF">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span>Vista Previa — Reporte de Fallas</span>
+            <button onclick="cerrarModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalContenido"></div>
+        <div class="modal-footer">
+            <button class="btn-cerrar-modal" onclick="cerrarModal()">Cerrar</button>
+            <button class="btn-descargar"    onclick="descargarPDF()">⬇ Descargar PDF</button>
         </div>
     </div>
-
-    <script>
-        const loginForm = document.getElementById('loginForm');
-
-        // ── Toast reutilizable ───────────────────────────────────────────
-        const ToastError = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3500,
-            timerProgressBar: true
-        });
-
-        // ── Validación de formato de correo (cubre todos los casos del PDF) ─
-        function validarCorreo(correo) {
-
-            // CASO: sin @ en el correo
-            if (!correo.includes('@')) {
-                return {
-                    valido: false,
-                    mensaje: `Incluye un signo de @ en la dirección de correo electrónico. La dirección "${correo}" no incluye el signo de "@"`
-                };
-            }
-
-            const partes  = correo.split('@');
-            const local   = partes[0];          // parte ANTES del @
-            const dominio = partes[1];           // parte DESPUÉS del @
-
-            // CASO: caracteres inválidos ANTES del @
-            // Permitidos: letras, números, puntos, guiones y guiones bajos
-            const regexLocal = /^[a-zA-Z0-9._\-]+$/;
-            if (!local || !regexLocal.test(local)) {
-                return {
-                    valido: false,
-                    mensaje: 'Correo no aceptado: caracteres inválidos antes del @'
-                };
-            }
-
-            // CASO: caracteres inválidos DESPUÉS del @
-            // Permitidos: letras, números, puntos y guiones, con al menos un punto y extensión
-            const regexDominio = /^[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-            if (!dominio || !regexDominio.test(dominio)) {
-                return {
-                    valido: false,
-                    mensaje: 'Caracteres inválidos después del @'
-                };
-            }
-
-            // Correo aceptado
-            return { valido: true };
-        }
-
-        // ── Submit del formulario ────────────────────────────────────────
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const correoInput = document.getElementById('correo');
-            const passInput   = document.getElementById('password');
-            const correo      = correoInput.value.trim();
-            const pass        = passInput.value;
-
-            // CASO: ambos campos vacíos
-            if (!correo && !pass) {
-                ToastError.fire({ icon: 'warning', title: 'Completa este campo' });
-                correoInput.focus();
-                return;
-            }
-
-            // CASO: solo correo vacío
-            if (!correo) {
-                ToastError.fire({ icon: 'warning', title: 'Completa este campo' });
-                correoInput.focus();
-                return;
-            }
-
-            // CASO: contraseña vacía
-            if (!pass) {
-                ToastError.fire({ icon: 'warning', title: 'Completar este campo' });
-                passInput.focus();
-                return;
-            }
-
-            // CASO: validaciones de formato del correo
-            const validacion = validarCorreo(correo);
-            if (!validacion.valido) {
-                ToastError.fire({ icon: 'warning', title: validacion.mensaje });
-                correoInput.select();
-                return;
-            }
-
-            // ── Fetch al backend ─────────────────────────────────────────
-            try {
-                const response = await fetch('http://localhost:3000/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ correo, pass })
-                });
-
-                const contentType = response.headers.get('content-type');
-
-                if (contentType && contentType.includes('application/json')) {
-                    const result = await response.json();
-
-                    if (result.success) {
-                        localStorage.setItem('userRole',    result.user.Roles_ID_roles);
-                        localStorage.setItem('userCorreo',  result.user.Correo);
-                        localStorage.setItem('showWelcome', 'true');
-                        window.location.href = 'menu.html';
-                    } else {
-                        // CASO: correo no registrado O contraseña incorrecta
-                        ToastError.fire({
-                            icon: 'error',
-                            title: result.message || 'Credenciales invalidas'
-                        });
-                        passInput.value = ''; // Borrar solo contraseña
-                        passInput.focus();
-                    }
-                } else {
-                    console.error('El servidor no respondió con JSON');
-                }
-
-            } catch (error) {
-                console.error('Error al conectar:', error);
-                ToastError.fire({
-                    icon: 'error',
-                    title: 'No hay conexión con el servidor'
-                });
-            }
-        });
-    </script>
+</div>
+ 
+<script src="assets/js/gestionar_fallas.js"></script>
 </body>
 </html>
+ 
